@@ -1,0 +1,8 @@
+outputs/
+*.pyc
+__pycache__/
+.vscode/
+.idea/
+.env
+*.zip
+_*.py
