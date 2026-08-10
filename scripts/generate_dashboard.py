@@ -18,10 +18,15 @@ from pathlib import Path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from parse_excel import parse_excel
 from process_base_data import process_records, compute_dashboard_data
+from analyze_content import analyze
 
 
 def generate_dashboard_html(dashboard_data: dict, output_path: str):
     """生成看板 HTML"""
+    # 运行内容分析
+    bank = dashboard_data.get('question_bank', {})
+    analysis = analyze(dashboard_data, bank)
+    dashboard_data['_analysis'] = analysis
 
     html = __build_html(dashboard_data)
 
@@ -225,6 +230,108 @@ function render() {{
         h += `<td style="font-weight:700">${{avg(rowScores).toFixed(2)}}</td></tr>`;
     }});
     h += `</table></div></section>`;
+
+    // ====== 内容分析模块 ======
+    const A = DATA._analysis || {{}};
+
+    // 协作卡点
+    if (A.bottlenecks && A.bottlenecks.length > 0) {{
+        h += `<section><div class="sec-h"><div class="ic">🚧</div><h2>协作卡点分析</h2></div>`;
+        h += `<div class="note">基于低分指标和评价者认知差自动识别</div>`;
+        A.bottlenecks.forEach(b => {{
+            h += `<div class="tl" style="border-left:4px solid ${{b.severity==='严重'?'var(--bad)':'var(--mid)'}}">
+                <div class="h"><span>${{b.tag}} (${{b.question_id}})</span><span class="badge ${{b.severity==='严重'?'bad':'good'}}">${{b.severity}}</span></div>
+                <div class="q">${{b.dimension}} | 平级均分${{b.peer_avg}} / 下级均分${{b.sub_avg}} | 认知差${{b.gap.toFixed(2)}}</div>
+                <div class="q" style="margin-top:4px">${{b.question_text}}</div>
+            </div>`;
+        }});
+        h += `</section>`;
+    }}
+
+    // 风险点
+    if (A.risks && A.risks.length > 0) {{
+        h += `<section><div class="sec-h"><div class="ic">⚠️</div><h2>评价风险点</h2></div>`;
+        A.risks.forEach(r => {{
+            h += `<div class="tl" style="border-left:4px solid var(--bad)">
+                <div class="h"><span>${{r.title}}</span><span style="font-size:11px;color:var(--bad);font-weight:700">${{r.rank||''}}</span></div>
+                <div class="q">${{r.detail}}</div>
+            </div>`;
+        }});
+        h += `</section>`;
+    }}
+
+    // 优势亮点
+    if (A.strengths && A.strengths.length > 0) {{
+        h += `<section><div class="sec-h"><div class="ic">⭐</div><h2>优势与亮点</h2></div>`;
+        A.strengths.forEach(s => {{
+            h += `<div class="tl" style="border-left:4px solid var(--good)">
+                <div class="h"><span>${{s.dimension}}</span><span style="font-size:11px;color:var(--good);font-weight:700">${{s.level}}</span></div>
+                <div class="q" style="font-weight:700;color:var(--good)">${{s.score.toFixed(2)}} 分</div>
+                <div class="q">${{s.detail}}</div>
+            </div>`;
+        }});
+        h += `</section>`;
+    }}
+
+    // 文本挖掘
+    if (A.text_mining && A.text_mining.clusters) {{
+        h += `<section><div class="sec-h"><div class="ic">🔍</div><h2>关键能力聚类</h2></div>`;
+        h += `<div class="note">${{A.text_mining.note||'基于评分数据的关键能力聚类分析'}}</div>`;
+        h += `<div class="tags">`;
+        A.text_mining.clusters.forEach(c => {{
+            h += `<div class="tl">
+                <div class="h">${{c.keyword}}</div>
+                <div class="q">${{c.description}}</div>
+                <div class="q" style="margin-top:4px;font-size:11px">${{c.detail||''}}</div>
+            </div>`;
+        }});
+        h += `</div></section>`;
+    }}
+
+    // 四象限定位
+    if (A.quadrant) {{
+        h += `<section><div class="sec-h"><div class="ic">🧩</div><h2>综合评价定位</h2></div>`;
+        h += `<div class="tl" style="padding:16px">
+            <h4 style="font-size:15px;margin-bottom:8px;color:var(--brand)">当前定位：${{A.quadrant.position}}</h4>
+            <p style="font-size:13px;color:var(--ink2)">${{A.quadrant.detail}}</p>
+            <p style="margin-top:10px;font-weight:700;font-size:13px">人才决策建议：${{A.quadrant.decision}}</p>
+            <div style="display:flex;gap:20px;margin-top:10px;font-size:11px;color:var(--ink2)">
+                <span>平级评价人: ${{A.quadrant.peer_count}}人</span>
+                <span>下级评价人: ${{A.quadrant.sub_count}}人</span>
+            </div>
+        </div></section>`;
+    }}
+
+    // 综合评价
+    if (A.summary) {{
+        h += `<section><div class="sec-h"><div class="ic">📝</div><h2>综合评价总结</h2></div>`;
+        h += `<div class="tl" style="padding:16px">
+            <h4 style="font-size:14px;margin-bottom:8px">核心结论</h4>
+            <p style="font-size:13px;color:var(--ink2)">${{A.summary.conclusion}}</p>
+            <p style="font-size:12px;color:var(--ink2);margin-top:8px">
+                共${{A.summary.evaluator_count}}位评价者(${{A.summary.peer_count}}平级+${{A.summary.sub_count}}下级)，${{A.summary.total_scores}}条有效评分
+            </p>
+            <p style="font-size:12px;color:var(--ink2)">
+                最大分歧项: ${{A.summary.max_disagreement}}${{A.summary.max_disagreement_sd?' (SD='+A.summary.max_disagreement_sd.toFixed(2)+')':''}}
+            </p>
+            <h4 style="font-size:13px;margin:12px 0 6px">发展建议</h4>`;
+        (A.summary.suggestions||[]).forEach((s, i) => {{
+            h += `<p style="font-size:13px;color:var(--ink2);margin:3px 0">${{i+1}}. ${{s}}</p>`;
+        }});
+        h += `</div></section>`;
+    }}
+
+    // IDP 分析
+    if (A.idp && A.idp.length > 0) {{
+        h += `<section><div class="sec-h"><div class="ic">🎯</div><h2>IDP 各阶段分析</h2></div>`;
+        A.idp.forEach(item => {{
+            h += `<div class="tl" style="padding:12px">
+                <div class="h"><span>${{item.phase}}: ${{item.dimension}}</span>${{item.avg_score?'<span class="score">均分'+item.avg_score.toFixed(2)+'</span>':''}}</div>
+                <div class="q">覆盖${{(item.questions||[]).length}}项指标: ${{(item.questions||[]).join(', ')}}</div>
+            </div>`;
+        }});
+        h += `</section>`;
+    }}
 
     // 脚注
     h += `<div style="text-align:center;padding:20px;color:var(--ink2);font-size:12px">
