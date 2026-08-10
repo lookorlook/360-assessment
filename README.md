@@ -65,7 +65,7 @@
 无法判断
 ```
 
-完整模板 → [题库模板-360环评.xlsx](https://github.com/zcl0411/360-assessment/blob/main/assets/题库模板-360环评.xlsx)
+完整模板 → [题库模板-360环评.xlsx](https://github.com/lookorlook/360-assessment/blob/master/assets/题库模板-360环评.xlsx)
 
 ## 使用方法
 
