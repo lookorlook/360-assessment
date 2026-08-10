@@ -3,226 +3,538 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>360° 环评诊断看板</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<title>业务部门 部门负责人 候选人 · 360° 环评诊断看板</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
+</script>
 <style>
 :root{
-  --bg:#161A1E; --card:#21262D; --ink:#E6EDF3; --ink2:#8B949E; --line:#30363D;
-  --brand:#58A6FF; --brand-soft:#1F2937;
-  --good:#3FB950; --mid:#D29922; --bad:#F85149;
-  --peer:#58A6FF; --sub:#F0883E;
-  --shadow:0 1px 3px rgba(0,0,0,.3),0 6px 24px rgba(0,0,0,.2);
+  --bg:#f4f6fb; --card:#ffffff; --ink:#1f2733; --ink2:#5b6675; --line:#e6eaf2;
+  --brand:#3b5bdb; --brand-soft:#eef2ff;
+  --good:#2f9e44; --mid:#f08c00; --bad:#e03131;
+  --peer:#3b5bdb; --sub:#e8590c;
+  --shadow:0 1px 3px rgba(20,30,60,.06),0 6px 24px rgba(20,30,60,.06);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;padding-bottom:60px}
 .wrap{max-width:1200px;margin:0 auto;padding:0 22px}
-header.hero{background:linear-gradient(120deg,#131C2E,#1A3370 55%,#1F4388);color:#fff;padding:28px 0 34px}
+header.hero{background:linear-gradient(120deg,#2b3a8f,#3b5bdb 55%,#5c7cfa);color:#fff;padding:28px 0 34px}
 header.hero .wrap{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px}
-.hero h1{font-size:22px;font-weight:700}
+.hero h1{font-size:24px;font-weight:700}
 .hero .sub{opacity:.9;font-size:13px;margin-top:6px}
-.pill{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 14px;font-size:13px;text-align:center;min-width:110px}
-.pill b{display:block;font-size:20px;font-weight:800;margin-top:2px}
-.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin:-22px 0 26px}
-.kpi{background:var(--card);border-radius:14px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--line)}
-.kpi .l{font-size:12px;color:var(--ink2);display:flex;align-items:center;gap:6px}
-.kpi .v{font-size:22px;font-weight:800;margin-top:8px}
-.kpi .d{font-size:11px;color:var(--ink2);margin-top:3px}
+.hero .tag{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);padding:4px 11px;border-radius:999px;font-size:12px;margin-top:8px}
+.pill{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:10px;padding:10px 14px;font-size:13px;text-align:center;min-width:118px}
+.pill b{display:block;font-size:21px;font-weight:800;margin-top:2px}
+
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:-22px 0 26px}
+.kpi{background:var(--card);border-radius:14px;padding:16px 16px 15px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.kpi .l{font-size:12.5px;color:var(--ink2);display:flex;align-items:center;gap:6px}
+.kpi .v{font-size:20px;font-weight:800;margin-top:7px;letter-spacing:0;line-height:1.3}
+.kpi .d{font-size:11.5px;color:var(--ink2);margin-top:3px}
+.kpi.warn{border-color:#ffd8a8;background:#fffaf2}
 .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
 .dot.bad{background:var(--bad)} .dot.good{background:var(--good)} .dot.brand{background:var(--brand)}
-section{background:var(--card);border-radius:16px;padding:24px;margin-bottom:20px;box-shadow:var(--shadow);border:1px solid var(--line)}
-.sec-h{display:flex;align-items:center;gap:10px;margin-bottom:16px}
-.sec-h .ic{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-size:16px;background:var(--brand-soft);color:var(--brand)}
+
+section{background:var(--card);border-radius:16px;padding:22px 22px 18px;margin-bottom:20px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.sec-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sec-h .ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:16px;background:var(--brand-soft);color:var(--brand)}
 .sec-h h2{font-size:17px;font-weight:700}
-.note{font-size:12px;color:var(--ink2);margin-bottom:14px}
-.bar-line{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:13px}
-.bar-line .name{width:140px;flex:none;color:var(--ink2);text-align:right;font-size:12px}
-.bar-track{flex:1;background:#161A1E;border-radius:7px;height:20px;position:relative;overflow:hidden}
-.bar-fill{height:100%;border-radius:7px;display:flex;align-items:center;justify-content:flex-end;padding-right:7px;color:#fff;font-size:11px;font-weight:700;transition:width 1s cubic-bezier(.2,.8,.2,1)}
-.bar-fill.peer{background:linear-gradient(90deg,#388BFD,#58A6FF)}
-.bar-fill.sub{background:linear-gradient(90deg,#D4622E,#F0883E)}
-.legend{display:flex;gap:18px;font-size:12px;color:var(--ink2);margin:4px 0 14px}
-.legend i{width:12px;height:12px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:-1px}
-.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
-@media(max-width:860px){.chart-row{grid-template-columns:1fr} .kpis{grid-template-columns:repeat(2,1fr)}}
-.chart-box{position:relative;height:380px}
-.tl{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px}
-.tl .h{font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
-.tl .q{font-size:12px;color:var(--ink2);margin-top:4px}
-.tl .score{font-weight:800;font-size:16px}
-.tl .stdev{font-size:10px;color:var(--ink2);margin-left:4px}
-.risk{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
-.rc{border:1px solid var(--line);border-radius:13px;padding:15px;background:var(--card);border-left:4px solid var(--bad)}
-.rc.amber{border-left-color:var(--mid)}
+.sec-h .en{font-size:12px;color:var(--ink2);margin-left:auto}
+.note{font-size:12.5px;color:var(--ink2);margin:4px 0 14px}
+
+/* Dim bars */
+.chart-row{display:grid;grid-template-columns:1.15fr .85fr;gap:24px;align-items:center}
+@media(max-width:880px){.chart-row{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+.bar-line{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px}
+.bar-line .name{width:172px;flex:none;color:var(--ink2);text-align:right}
+.bar-track{flex:1;background:#f1f3f9;border-radius:7px;height:22px;position:relative;overflow:hidden}
+.bar-fill{height:100%;border-radius:7px;display:flex;align-items:center;justify-content:flex-end;padding-right:7px;color:#fff;font-size:11.5px;font-weight:700;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.bar-fill.peer{background:linear-gradient(90deg,#4263eb,#5c7cfa)}
+.bar-fill.sub{background:linear-gradient(90deg,#e8590c,#ff922b)}
+.legend{display:flex;gap:18px;font-size:12.5px;color:var(--ink2);margin:2px 0 14px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block;margin-right:6px;vertical-align:-1px}
+
+.reli-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rcard{border:1px solid var(--line);border-radius:11px;padding:13px 14px;background:#fbfcfe}
+.rcard h4{font-size:13.5px;margin-bottom:6px}
+.rcard p{font-size:12.5px;color:var(--ink2)}
+.rcard.alert{border-color:#ffc9c9;background:#fff0f0}
+.rcard.alert h4{color:var(--bad)}
+
+.risk{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:880px){.risk{grid-template-columns:1fr}}
+.rc{border:1px solid var(--line);border-radius:13px;padding:15px 15px 14px;background:#fff;position:relative;overflow:hidden}
+.rc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--bad)}
+.rc.amber::before{background:var(--mid)}
 .rc .t{font-size:14px;font-weight:700;margin-bottom:5px}
-.rc p{font-size:12px;color:var(--ink2);margin-top:4px}
-.quote{border-left:3px solid var(--line);padding:5px 0 5px 11px;margin:9px 0 4px;font-size:11px;color:var(--ink2);font-style:italic}
-.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-.atag{background:rgba(248,81,73,.15);color:var(--bad);border:1px solid rgba(248,81,73,.3);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:600}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line)}
-th{color:var(--ink2);font-weight:600;font-size:11px;background:#161A1E}
-td .bar-sm{display:inline-block;height:14px;border-radius:3px;background:var(--brand);vertical-align:middle;margin-right:6px}
-tr:hover td{background:rgba(88,166,255,.05)}
-.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700}
-.badge.peer{background:rgba(88,166,255,.15);color:var(--peer)}
-.badge.sub{background:rgba(240,136,62,.15);color:var(--sub)}
+.rc .lv{font-size:11px;font-weight:700;color:#fff;background:var(--bad);border-radius:6px;padding:1px 8px;display:inline-block;margin-bottom:8px}
+.rc.amber .lv{background:var(--mid)}
+.rc p{font-size:12.5px;color:var(--ink2);margin-top:4px}
+.quote{border-left:3px solid #ced4da;padding:5px 0 5px 11px;margin:9px 0 4px;font-size:12px;color:#495057;font-style:italic}
+
+.tags{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:14px}
+.atag{background:#fff0f0;color:#c92a2a;border:1px solid #ffc9c9;border-radius:999px;padding:5px 13px;font-size:12.5px;font-weight:600}
+.atag.em{background:#fff4e6;color:#d9480f;border-color:#ffd8a8}
+.taglist{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:880px){.taglist{grid-template-columns:1fr}}
+.tl{border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+.tl .h{font-size:13px;font-weight:700;display:flex;justify-content:space-between}
+.tl .h span{font-size:11px;color:var(--ink2);font-weight:500}
+.tl .q{font-size:12px;color:var(--ink2);margin-top:4px}
+
+.quad-wrap{display:grid;grid-template-columns:1fr .9fr;gap:26px;align-items:center}
+@media(max-width:880px){.quad-wrap{grid-template-columns:1fr}}
+.qcard{border:1px solid var(--line);border-radius:12px;padding:15px 17px;background:#fbfcfe}
+.qcard h4{font-size:14px;margin-bottom:8px}
+.qcard .pos{font-size:13px;font-weight:700;color:var(--brand);margin:4px 0}
+.qcard p{font-size:12.5px;color:var(--ink2)}
+
+.tl2{position:relative;padding-left:26px}
+.tl2::before{content:"";position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.step{position:relative;margin-bottom:17px}
+.step::before{content:"";position:absolute;left:-22px;top:4px;width:13px;height:13px;border-radius:50%;background:#fff;border:3px solid var(--brand)}
+.step.s1::before{border-color:var(--bad)} .step.s2::before{border-color:var(--mid)}
+.step.s3::before{border-color:#1971c2} .step.s4::before{border-color:#2f9e44}
+.step .ph{font-size:12px;font-weight:700;color:var(--brand)}
+.step.s1 .ph{color:var(--bad)} .step.s2 .ph{color:var(--mid)} .step.s3 .ph{color:#1971c2} .step.s4 .ph{color:#2f9e44}
+.step .ti{font-size:14px;font-weight:700;margin:2px 0 4px}
+.step li{font-size:12.5px;color:var(--ink2);margin:3px 0 3px 16px}
+
+/* IDP & heatmap (from v2, simplified) */
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.badge-high{background:#e8f5e9;color:#2e7d32}
+.badge-mid{background:#fff3e0;color:#e65100}
+.badge-low{background:#fce4ec;color:#c62828}
+.heat-cell{width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#333;position:relative;margin:0 auto}
+.na-cell{color:#ccc;background:#f5f5f5}
+.heat-cell.has-comment{box-shadow:0 0 0 2px #3b5bdb,0 0 0 4px rgba(59,91,219,.3);cursor:help}
+.heat-cell.has-comment::after{content:"💬";position:absolute;top:-8px;right:-8px;font-size:10px;background:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.q-text{font-size:12px;font-weight:500;cursor:help;border-bottom:1px dotted var(--ink2);display:inline-block;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.q-text:hover{color:var(--brand);border-bottom-color:var(--brand)}
+.tooltip-box{position:fixed;z-index:10000;max-width:320px;background:#1f2733;color:#fff;padding:10px 12px;border-radius:8px;font-size:12px;line-height:1.6;box-shadow:0 4px 16px rgba(0,0,0,.2);pointer-events:none;opacity:0;transition:opacity .15s;white-space:pre-wrap;word-break:break-word}
+.tooltip-box.show{opacity:1}
+
+.idp-goal{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin-bottom:16px}
+.idp-goal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.idp-goal-title{font-size:15px;font-weight:600;color:var(--ink)}
+.idp-phase-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:var(--brand);color:#fff;margin-left:8px}
+.idp-cat-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:#e8eaf6;color:var(--brand);margin-left:4px}
+.idp-status{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}
+.idp-status.achieved{background:#e8f5e9;color:#2e7d32}
+.idp-status.partial{background:#fff3e0;color:#e65100}
+.idp-status.unachieved{background:#fce4ec;color:#c62828}
+.idp-section{margin-top:10px;font-size:13px;color:var(--ink);line-height:1.7}
+.idp-section strong{color:var(--brand);display:block;margin-bottom:4px;font-size:12px}
+.idp-reqs{padding-left:18px;margin:4px 0}
+.idp-reqs li{margin-bottom:4px;font-size:12px;color:var(--ink2)}
+.idp-q-map{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.idp-q-chip{background:#f0f4ff;color:var(--brand);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:500}
+.idp-q-score{background:#f8f9fb;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;margin-left:6px}
+.idp-q-score.high{background:#e8f5e9;color:#2e7d32}
+.idp-q-score.mid{background:#fff3e0;color:#e65100}
+.idp-q-score.low{background:#fce4ec;color:#c62828}
+.idp-ai-analysis{background:linear-gradient(135deg,#f8f9ff,#f0f4ff);border:1px solid #d6deff;border-radius:8px;padding:12px 16px;margin-top:10px;font-size:12px;color:var(--ink);line-height:1.7;position:relative}
+.idp-ai-analysis .ai-title{font-weight:600;color:var(--brand);font-size:12px;margin-bottom:4px}
+.idp-ai-analysis .ai-content{color:#444}
+
+.tab-nav{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--line);overflow-x:auto}
+.tab-btn{padding:10px 18px;border:none;background:none;cursor:pointer;font-size:14px;font-weight:500;color:var(--ink2);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;white-space:nowrap}
+.tab-btn.active{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
+.tab-btn:hover{color:var(--brand)}
+.comment-box{border-left:3px solid var(--brand);padding:12px 16px;margin-bottom:12px;background:#f8f9fb;border-radius:0 8px 8px 0;font-size:13px}
+.comment-box .author{font-weight:600;color:var(--brand);margin-bottom:6px;font-size:12px}
+.comment-box .content{color:var(--ink);line-height:1.7;white-space:pre-wrap}
+
+footer{text-align:center;color:var(--ink2);font-size:11.5px;margin-top:30px;line-height:1.8}
+.flag{display:inline-flex;align-items:center;gap:6px;background:#fff7ed;border:1px solid #ffd8a8;color:#d9480f;border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:600;margin-bottom:14px}
+
+.chart-wrap{position:relative;width:100%;height:380px}
+.chart-wrap.tall{height:440px}
+.canvas-wrap{position:relative;height:100%}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{background:#f8f9fb;font-weight:600;color:var(--ink2);font-size:12px;position:sticky;top:0}
+tr:hover td{background:#f8f9fb}
 </style>
 </head>
 <body>
-<div id="app">加载中...</div>
+<header class="hero">
+<div class="wrap">
+<div>
+<h1>🎯 候选人 · 360° 环评诊断看板 <span style="font-size:14px;font-weight:400;opacity:.8;">匿名版</span></h1>
+<div class="sub">IDP 第二阶段 胜任力评估 ｜ 分析范围 Q1–Q24 评分 + Q25–Q27 开放题 ｜ 10 位评价者（8 平级 + 2 下级）</div>
+<span class="tag">被评估人：候选人（业务部门 总经理）</span>
+<span class="tag">7 维度 · 24 项胜任力指标</span>
+</div>
+<div style="display:flex;gap:10px">
+<div class="pill">有效平级<b>8</b></div>
+<div class="pill">有效下级<b>2</b></div>
+<div class="pill">平级均分<b>3.21</b></div>
+</div>
+</div>
+</header>
 
+<div class="wrap">
+
+<!-- KPI Row -->
+<div class="kpis">
+<div class="kpi"><div class="l"><span class="dot brand"></span>综合平均分</div><div class="v" id="kpi_all">-</div><div class="d" id="kpi_all_n">满分 5.0</div></div>
+<div class="kpi"><div class="l"><span class="dot brand"></span>最高维度</div><div class="v" style="color:var(--good)" id="kpi_top_dim">-</div><div class="d" id="kpi_top_val"></div></div>
+<div class="kpi warn"><div class="l"><span class="dot bad"></span>最低维度</div><div class="v" style="color:var(--bad)" id="kpi_bot_dim">-</div><div class="d" id="kpi_bot_val"></div></div>
+<div class="kpi"><div class="l"><span class="dot brand"></span>下级 vs 平级</div><div class="v" style="font-size:24px" id="kpi_subvpeer">-</div><div class="d">约 0.8 分差</div></div>
+<div class="kpi warn"><div class="l"><span class="dot bad"></span>最大分歧项</div><div class="v" style="color:var(--bad)" id="kpi_div">Q22</div><div class="d">SD=1.70</div></div>
+</div>
+
+<!-- 1. Dimension Overview -->
+<section>
+<div class="sec-h"><div class="ic">📊</div><h2>维度对比分析（平级 vs 下级）</h2><div class="en">Dimension Comparison</div></div>
+<div class="chart-row">
+<div>
+<div class="legend"><span><i style="background:#4263eb"></i>平级均分</span><span><i style="background:#e8590c"></i>下级均分</span><span style="color:#adb5bd;font-size:11px">（5 分制）</span></div>
+<div id="dimBars"></div>
+</div>
+<div style="display:flex;align-items:center;justify-content:center">
+<div id="radarWrap" style="width:100%;max-width:360px"><canvas id="radarChart"></canvas></div>
+</div>
+</div>
+</section>
+
+
+<!-- 3. Risk Analysis -->
+<section>
+<div class="sec-h"><div class="ic">🚧</div><h2>协作卡点 · 跨部门协作卡点</h2><div class="en">Collaboration Bottlenecks</div></div>
+<div class="risk">
+<div class="rc"><div class="t">卡点 1 · 后台支持信息同步</div><div class="lv">严重</div>
+<p>Q4 后台支持信息同步均分偏低，下级与平级存在显著认知差（>0.5 阈值）→ 协同障碍成立。把支持部门当"监督者"而非"赋能方"，存在信息壁垒。</p>
+<div class="quote">"某时期 未项目交付直接放行，支持部门发现后前台第一反应是'支持部门怎么知道的'。"——评价人4</div></div>
+<div class="rc amber"><div class="t">卡点 2 · 人力资源部 思维惯性</div><div class="lv">中</div>
+<p>Q12 均分全场最低（2.50），精力过度投入 人力资源部 事务，把考勤当重要评估指标，偏离 部门负责人 经营视角，在用人识人上尚未完成从 人力资源部 sense 到业务管理视角 的转型。</p>
+<div class="quote">"用人上会参与很多 人力资源部 该做的事，精力可更多放业务。"——评价人5</div></div>
+<div class="rc amber"><div class="t">卡点 3 · 决策反复缺预案</div><div class="lv">中</div>
+<p>Q20/Q24 环节存在"业务决策变快但有反复""前期未制定处置预案，导致其他团队原计划被打乱"，消耗平级信任。</p>
+<div class="quote">"方案在协调阶段考虑不周……导致协作部门原计划被打乱。"——评价人8</div></div>
+</div>
+</section>
+
+<section>
+<div class="sec-h"><div class="ic">⚠️</div><h2>评价风险点</h2><div class="en">Evaluation Risks</div></div>
+<div class="note" style="margin-bottom:14px">⚠️ 数据可信度：部分下级评价人给出"全场最高分"或"全相同"等明显倾向（缺乏区分度），建议结合平级多评价者交叉验证后使用</div>
+<div class="risk">
+<div class="rc"><div class="t">风险 1 · 数据可信度</div><div class="lv">TOP 1</div>
+<p>部分下级评价人给出"全场最高分"或"全相同"等明显倾向（缺乏区分度），结合平级多评价者交叉验证，综合评价结论更为可信。</p></div>
+<div class="rc amber"><div class="t">风险 2 · 关怀双标</div><div class="lv">TOP 2</div>
+<p>对直属核心下级关怀充分，但对外围下属（借调人员、某类员工员工）存在双重标准——比经典"协调型管理者"更隐蔽的凝聚力风险。</p>
+<div class="quote">"对前往借调的运营，也不向驻地团队介绍，以命令式口吻安排工作。"——评价人4</div></div>
+<div class="rc amber"><div class="t">风险 3 · 团队管理风格</div><div class="lv">TOP 3</div>
+<p>评价人7 反馈"团队管理上风格偶尔阴晴不定"，将考勤作为重要评估指标，对长期员工和某类员工存在双重标准。</p>
+<div class="quote">"仍会带入人力资源部思维进行员工管理，在团队管理上反而把考勤作为一个重要评估指标。"——评价人7</div></div>
+</div>
+</section>
+
+<section>
+<div class="sec-h"><div class="ic">⭐</div><h2>优势与亮点</h2><div class="en">Strengths & Highlights</div></div>
+<div class="risk">
+<div class="rc" style="border-left:4px solid #2f9e44">
+<div class="t" style="color:#2f9e44">亮点 1 · 合规与风险意识强</div><div class="lv" style="background:#2f9e44">STRONG</div>
+<p>合规维度 3.53 分（7 维度中最高），驻地用工、行业监管法规、客户资料合规排查均表现优良；评价人反馈"用工严格，合法合规"。</p>
+</div>
+<div class="rc" style="border-left:4px solid #2f9e44">
+<div class="t" style="color:#2f9e44">亮点 2 · 业务理解与决策能力</div><div class="lv" style="background:#2f9e44">STRONG</div>
+<p>下级评价反馈"对业务理解到位，对运营中心帮助和建议专业有效"；面对市场变化容量不足情境，能在 1-2 周内做出 核心业务 分流的多套方案，缓解大面积拥堵。</p>
+</div>
+<div class="rc" style="border-left:4px solid #2f9e44">
+<div class="t" style="color:#2f9e44">亮点 3 · 敢于授权与目标拆解</div><div class="lv" style="background:#2f9e44">STRONG</div>
+<p>Q9（敢于授权）均分 3.71，"结合成员优势合理派活，同时具备人员替换的风险预案"；基于公司目标分解到各部门、设立团队 KPI、按月 review。</p>
+</div>
+</div>
+</section>
+
+<!-- 4. Text Mining -->
+<section>
+<div class="sec-h"><div class="ic">🔍</div><h2>关键文本挖掘</h2><div class="en">Text Mining</div></div>
+<div class="tags">
+<span class="atag">封闭 / 信息不透明</span>
+<span class="atag em">情绪化 / 阴晴不定</span>
+<span class="atag em">双重标准</span>
+<span class="atag">人力资源部 思维惯性</span>
+<span class="atag em">事后响应 / 缺预案</span>
+</div>
+<div class="taglist">
+<div class="tl"><div class="h">封闭 / 信息不透明<span>多位评价者</span></div><div class="q">"业务部门 内部要求是：能不跟支持部门讲的事情都不要讲"</div></div>
+<div class="tl"><div class="h">情绪化 / 阴晴不定<span>多位评价者</span></div><div class="q">"情绪化表达""态度居高临下""偶尔受情绪影响"</div></div>
+<div class="tl"><div class="h">双重标准<span>多位评价者</span></div><div class="q">"对某类员工的要求高出一截""不能公平看待合作人员"</div></div>
+<div class="tl"><div class="h">事后响应 / 缺预案<span>多位评价者</span></div><div class="q">"多为事后响应，缺少前置监测""未制定预案打乱他人计划"</div></div>
+</div>
+<div class="note" style="margin-top:12px">未检出"压榨、甩锅"类词汇；核心负面语义簇为 <b>封闭、情绪化、双标</b>。</div>
+</section>
+
+<!-- 5. Quadrant -->
+<section>
+<div class="sec-h"><div class="ic">🧩</div><h2>综合评价矩阵</h2><div class="en">Quadrant Positioning</div></div>
+<div class="quad-wrap">
+<div id="quadChart"></div>
+<div>
+<div class="qcard" style="border-color:#ffc9c9;background:#fff5f5">
+<h4>📍 当前定位：内部导向型管理者</h4>
+<div class="pos" id="quadPos">-</div>
+<p>团队内部粘性过高、缺乏大局观的风险型定位。低分集中于"信息开放度"单一断面，修复杠杆明确。真实画像介于"团队内部高认可"与"待改善"之间。</p>
+</div>
+<div class="qcard" style="margin-top:12px"><h4>💡 人才决策</h4>
+<p><b style="color:var(--good)">继续观察 + 定向辅导（Develop in place）</b>。新任 部门负责人 爬坡期，业务潜力被认可；若 6–12 个月内"配合不足支持部门"无改善，再重新评估。</p></div>
+</div>
+</div>
+</section>
+
+
+<!-- 7. Heatmap -->
+
+<section>
+<div class="sec-h"><div class="ic">📊</div><h2>各项胜任力平均分</h2><div class="en">Average Scores</div></div>
+<div class="chart-wrap tall"><div class="canvas-wrap"><canvas id="avgBarChart"></canvas></div></div>
+</section>
+
+
+
+
+<!-- 9. Open-ended -->
+<section>
+<div class="sec-h"><div class="ic">💬</div><h2>开放性问题汇总</h2><div class="en">Open Responses</div></div>
+<div class="tab-nav">
+<button class="tab-btn active" data-tab="q25" onclick="switchTab('q25')">Q25 · 综合评价</button>
+<button class="tab-btn" data-tab="q26" onclick="switchTab('q26')">Q26 · 印象最深的管理决策</button>
+<button class="tab-btn" data-tab="q27" onclick="switchTab('q27')">Q27 · 建议获取的外部支持</button>
+</div>
+<div id="tab-q25" class="tab-content"></div>
+<div id="tab-q26" class="tab-content" style="display:none"></div>
+<div id="tab-q27" class="tab-content" style="display:none"></div>
+</section>
+
+
+
+<section>
+<div class="sec-h"><div class="ic">📝</div><h2>综合评价总结</h2><div class="en">Overall Summary</div></div>
+<div class="reli-grid">
+<div class="rcard">
+<h4>核心结论</h4>
+<p>本次 360 评估覆盖 24 项胜任力指标，由 10 位评价者（8 平级 + 2 下级）参与。综合平均分 <b style="color:var(--brand)">3.32</b>，处于合格水平。</p>
+<p>• <b>优势维度：</b>合规意识与风险管控、目标与过程管理<br>
+• <b>短板维度：</b>跨部门协作与外部网络<br>
+• <b>最大分歧项：</b>Q22（关键岗位赋能评估），评价两极</p>
+</div>
+<div class="rcard">
+<h4>发展建议方向</h4>
+<p>基于本轮评估反馈，候选人下一阶段建议聚焦：</p>
+<p>① 修复支持部门信任，建立常态化信息同步机制<br>
+② 完成从 人力资源部 sense 到业务管理视角 的转型<br>
+③ 减少决策反复，重大方案制定预案 Plan B</p>
+</div>
+</div>
+</section>
+
+<footer>
+数据来源：360 胜任力评估问卷 ｜ 本看板基于 10 份问卷的评分与开放文本生成<br>
+下级样本有限，相关结论请结合业绩数据与上级访谈交叉验证后使用。
+</footer>
+
+<div class="tooltip-box" id="tooltip"></div>
+</div><!-- .wrap -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
-const DATA = {"dimensions": {"战略思维": {"peer": 3, "sub": 4.25}, "团队管理": {"peer": 3.21, "sub": 4.38}, "执行落地": {"peer": 3.05, "sub": 4}, "沟通协作": {"peer": 3.14, "sub": 4}, "创新突破": {"peer": 2.86, "sub": 3.83}}, "question_avgs": {"Q1": {"avg": null, "stdev": null, "n": 0}, "Q2": {"avg": 3.2, "stdev": 0.92, "n": 10}, "Q3": {"avg": 3.4, "stdev": 0.52, "n": 10}, "Q4": {"avg": 3.6, "stdev": 0.7, "n": 10}, "Q5": {"avg": 3.6, "stdev": 0.84, "n": 10}, "Q6": {"avg": 3.2, "stdev": 0.79, "n": 10}, "Q7": {"avg": 3.5, "stdev": 0.71, "n": 10}, "Q8": {"avg": 3.4, "stdev": 0.7, "n": 10}, "Q9": {"avg": 3.3, "stdev": 1.16, "n": 10}, "Q10": {"avg": 3.1, "stdev": 0.57, "n": 10}, "Q11": {"avg": 3.1, "stdev": 0.57, "n": 10}, "Q12": {"avg": 3.4, "stdev": 0.7, "n": 10}, "Q13": {"avg": 3.4, "stdev": 0.84, "n": 10}, "Q14": {"avg": 3.3, "stdev": 0.82, "n": 10}, "Q15": {"avg": 3.2, "stdev": 0.63, "n": 10}, "Q16": {"avg": 2.8, "stdev": 0.92, "n": 10}}, "questions": [{"id": "Q1", "text": "能从全局角度分析业务趋势，制定中长期规划", "dimension": "战略思维", "tag": "战略视野"}, {"id": "Q2", "text": "将公司战略分解为可执行的部门目标", "dimension": "战略思维", "tag": "目标拆解"}, {"id": "Q3", "text": "在市场变化时快速调整策略方向", "dimension": "战略思维", "tag": "灵活应变"}, {"id": "Q4", "text": "准确识别团队成员的优势和短板", "dimension": "团队管理", "tag": "识人用人"}, {"id": "Q5", "text": "根据业务需要合理配置人员", "dimension": "团队管理", "tag": "资源调配"}, {"id": "Q6", "text": "建立有效的团队激励机制", "dimension": "团队管理", "tag": "团队激励"}, {"id": "Q7", "text": "及时处理团队内部冲突", "dimension": "团队管理", "tag": "冲突化解"}, {"id": "Q8", "text": "制定清晰的执行计划和里程碑", "dimension": "执行落地", "tag": "计划制定"}, {"id": "Q9", "text": "跟踪关键节点，及时纠偏", "dimension": "执行落地", "tag": "过程管控"}, {"id": "Q10", "text": "确保交付质量和时效", "dimension": "执行落地", "tag": "质量保障"}, {"id": "Q11", "text": "跨部门沟通中能清晰表达观点", "dimension": "沟通协作", "tag": "清晰表达"}, {"id": "Q12", "text": "主动同步信息，避免信息孤岛", "dimension": "沟通协作", "tag": "信息共享"}, {"id": "Q13", "text": "在分歧中寻求共识，推动合作", "dimension": "沟通协作", "tag": "促成共识"}, {"id": "Q14", "text": "鼓励团队尝试新方法和新工具", "dimension": "创新突破", "tag": "鼓励创新"}, {"id": "Q15", "text": "从失败中总结经验，快速迭代", "dimension": "创新突破", "tag": "复盘迭代"}, {"id": "Q16", "text": "将行业最佳实践引入团队", "dimension": "创新突破", "tag": "标杆学习"}], "dim_list": ["战略思维", "团队管理", "执行落地", "沟通协作", "创新突破"], "evaluators": [{"name": "评价人1", "id": "rec_0", "relation": "上级"}, {"name": "评价人2", "id": "rec_1", "relation": "平级"}, {"name": "评价人3", "id": "rec_2", "relation": "平级"}, {"name": "评价人4", "id": "rec_3", "relation": "平级"}, {"name": "评价人5", "id": "rec_4", "relation": "平级"}, {"name": "评价人6", "id": "rec_5", "relation": "平级"}, {"name": "评价人7", "id": "rec_6", "relation": "平级"}, {"name": "评价人8", "id": "rec_7", "relation": "平级"}, {"name": "评价人9", "id": "rec_8", "relation": "下级"}, {"name": "评价人10", "id": "rec_9", "relation": "下级"}], "peer_count": 7, "sub_count": 2, "sup_count": 1, "scores": {"Q1": [null, null, null, null, null, null, null, null, null, null], "Q2": [3, 2, 3, 3, 3, 3, 4, 2, 4, 5], "Q3": [4, 3, 3, 4, 3, 3, 3, 3, 4, 4], "Q4": [3, 3, 4, 4, 4, 3, 3, 3, 5, 4], "Q5": [4, 4, 3, 3, 4, 3, 4, 2, 5, 4], "Q6": [3, 2, 3, 3, 3, 3, 3, 3, 5, 4], "Q7": [4, 2, 4, 3, 4, 3, 3, 4, 4, 4], "Q8": [3, 4, 3, 3, 4, 2, 3, 4, 4, 4], "Q9": [4, 2, 3, 2, 3, 2, 4, 3, 5, 5], "Q10": [3, 4, 3, 3, 3, 3, 4, 2, 3, 3], "Q11": [3, 3, 3, 3, 3, 2, 3, 4, 4, 3], "Q12": [3, 3, 4, 3, 3, 3, 4, 3, 5, 3], "Q13": [3, 4, 3, 3, 4, 2, 3, 3, 4, 5], "Q14": [3, 4, 3, 2, 3, 3, 3, 4, 3, 5], "Q15": [4, 3, 3, 3, 4, 2, 3, 3, 4, 3], "Q16": [3, 4, 2, 2, 2, 3, 2, 2, 4, 4]}, "question_bank": {"meta": {"subject": "张三", "title": "部门经理", "table_title": "360度 领导力胜任评价表"}, "dimensions": [{"name": "战略思维", "questions": [{"id": "Q1", "order_cn": "一", "description": "能从全局角度分析业务趋势，制定中长期规划", "tag": "战略视野"}, {"id": "Q2", "order_cn": "二", "description": "将公司战略分解为可执行的部门目标", "tag": "目标拆解"}, {"id": "Q3", "order_cn": "三", "description": "在市场变化时快速调整策略方向", "tag": "灵活应变"}]}, {"name": "团队管理", "questions": [{"id": "Q4", "order_cn": "一", "description": "准确识别团队成员的优势和短板", "tag": "识人用人"}, {"id": "Q5", "order_cn": "二", "description": "根据业务需要合理配置人员", "tag": "资源调配"}, {"id": "Q6", "order_cn": "三", "description": "建立有效的团队激励机制", "tag": "团队激励"}, {"id": "Q7", "order_cn": "四", "description": "及时处理团队内部冲突", "tag": "冲突化解"}]}, {"name": "执行落地", "questions": [{"id": "Q8", "order_cn": "一", "description": "制定清晰的执行计划和里程碑", "tag": "计划制定"}, {"id": "Q9", "order_cn": "二", "description": "跟踪关键节点，及时纠偏", "tag": "过程管控"}, {"id": "Q10", "order_cn": "三", "description": "确保交付质量和时效", "tag": "质量保障"}]}, {"name": "沟通协作", "questions": [{"id": "Q11", "order_cn": "一", "description": "跨部门沟通中能清晰表达观点", "tag": "清晰表达"}, {"id": "Q12", "order_cn": "二", "description": "主动同步信息，避免信息孤岛", "tag": "信息共享"}, {"id": "Q13", "order_cn": "三", "description": "在分歧中寻求共识，推动合作", "tag": "促成共识"}]}, {"name": "创新突破", "questions": [{"id": "Q14", "order_cn": "一", "description": "鼓励团队尝试新方法和新工具", "tag": "鼓励创新"}, {"id": "Q15", "order_cn": "二", "description": "从失败中总结经验，快速迭代", "tag": "复盘迭代"}, {"id": "Q16", "order_cn": "三", "description": "将行业最佳实践引入团队", "tag": "标杆学习"}]}], "total_questions": 16, "evaluators": [{"level": "上级", "name": "李四", "position": "事业部总经理"}, {"level": "平级", "name": "王五", "position": "市场部经理"}, {"level": "平级", "name": "赵六", "position": "技术部经理"}, {"level": "平级", "name": "钱七", "position": "财务部经理"}, {"level": "下级", "name": "孙八", "position": "高级工程师"}, {"level": "下级", "name": "周九", "position": "产品主管"}, {"level": "下级", "name": "吴十", "position": "运营专员"}], "scoring_options": [{"score": 1, "text": "1分：尚未展现此能力，需重点关注。"}, {"score": 2, "text": "2分：偶尔展现此能力，仍需加强。"}, {"score": 3, "text": "3分：能够展现此能力，基本达到要求。"}, {"score": 4, "text": "4分：经常展现此能力，表现稳定可靠。"}, {"score": 5, "text": "5分：持续高频展现此能力，可作为标杆示范。"}, {"score": null, "text": "无法判断"}], "source_file": "题库模板-360环评.xlsx", "_sheets_used": {"question_bank": "评价表", "evaluators": "评价人", "scoring": "评分标准"}}};
+const DATA = {"evaluators": [{"name": "评价人01", "relation": "平级"}, {"name": "评价人02", "relation": "平级"}, {"name": "评价人03", "relation": "平级"}, {"name": "评价人04", "relation": "平级"}, {"name": "评价人05", "relation": "平级"}, {"name": "评价人06", "relation": "平级"}, {"name": "评价人07", "relation": "平级"}, {"name": "评价人08", "relation": "平级"}, {"name": "评价人09", "relation": "下级"}, {"name": "评价人10", "relation": "下级"}], "questions": [{"short": "Q1", "title": "Q1: 对核心经营指标（业务量、单位成本、绩效指标）有敏感度，能及时发现问题并推动改善"}, {"short": "Q2", "title": "Q2: 对某区域市场市场及竞对动态保持敏锐洞察，能将市场信息转化为可执行的业务调整方案"}, {"short": "Q3", "title": "Q3：在市场变化等外部政策变化时，能快速评估影响并制定应对策略"}, {"short": "Q4", "title": "Q4: 能主动与后台支持部门（人力资源部/财务部/经营管理部/技术部等）保持高频信息同步与协作"}, {"short": "Q5", "title": "Q5: 能建立并维护与项目、行业监管、核心服务商的常态化沟通机制，形成稳定的外部合作网络"}, {"short": "Q6", "title": "Q6：在面对跨部门分歧时，能聚焦问题本身寻找共识，对事不对人"}, {"short": "Q7", "title": "Q7: 能将外部获取的关键信息（趋势、行业动态等）分享给团队及相关方，实现信息共享"}, {"short": "Q8", "title": "Q8: 能准确判断团队成员的能力特点和优劣势，合理分工发挥各自优势"}, {"short": "Q9", "title": "Q9: 敢于授权，结合成员优势合理派活，同时具备人员替换的风险预案"}, {"short": "Q10", "title": "Q10: 保持与团队成员的定期沟通（含一线员工），能及时察觉并化解团队潜在矛盾"}, {"short": "Q11", "title": "Q11: 能肯定团队成员的工作价值，在业务量高压期保持团队士气与稳定性"}, {"short": "Q12", "title": "Q12: 能从「人力资源部 sense」上升到「业务管理视角」，在用人识人上更加成熟果断"}, {"short": "Q13", "title": "Q13: 熟悉某区域市场驻地用工标准和政府要求，确保用工安全合规"}, {"short": "Q14", "title": "Q14: 能主动推动外部客户项目交付资料的合规排查，提前规避项目交付风险"}, {"short": "Q15", "title": "Q15: 能持续关注行业监管法规及合规要求的变化，具备风险预判和前置应对意识"}, {"short": "Q16", "title": "Q16: 分析问题时能把相关因素考虑全面，避免以偏概全，能看清问题全貌"}, {"short": "Q17", "title": "Q17: 能从多渠道多方式获取信息（业务层面），并精准把握其核心内容"}, {"short": "Q18", "title": "Q18: 能跳出单一部门视角，从业务单元全局出发思考资源配置与优先级"}, {"short": "Q19", "title": "Q19: 能通过数据分析和意见反馈，主动发现业务中有待改善的问题，而非被动接受信息"}, {"short": "Q20", "title": "Q20: 对项目交付、运营、资源调配等核心环节能输出针对性的优化方案并推动落地"}, {"short": "Q21", "title": "Q21: 能根据业务量变化持续优化评估目标，按月设置目标、按季度复盘"}, {"short": "Q22", "title": "Q22: 对新入职关键岗位（运营中心主管、资源调配主管等）能提出清晰的赋能要求和试用期评估计划"}, {"short": "Q23", "title": "Q23: 能用团队理解和认同的方式沟通目标，激发团队动力而非单纯下达任务"}, {"short": "Q24", "title": "Q24: 在过程管理中能坚持跟踪进度，对异常及时复盘并调整方向"}], "data": [[{"score": 2, "comments": {}}, {"score": null, "comments": {}}, {"score": 1, "comments": {}}, {"score": 3, "comments": {}}, {"score": 3, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": 3, "comments": {}}, {"score": 5, "comments": {}}, {"score": 4, "comments": {}}], [{"score": 4, "comments": {}}, {"score": null, "comments": {}}, {"score": null, "comments": {}}, {"score": 3, "comments": {}}, {"score": 2, "comments": {}}, {"score": 2, "comments": {}}, {"score": 3, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": 5, "comments": {}}], [{"score": 4, "comments": {}}, {"score": null, "comments": {}}, {"score": 2, "comments": {}}, {"score": 4, "comments": {}}, {"score": null, "comments": {}}, {"score": 3, "comments": {}}, {"score": 5, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": 4, "comments": {}}], [{"score": 4, "comments": {}}, {"score": null, "comments": {}}, {"score": 2, "comments": {}}, {"score": 2, "comments": {}}, {"score": 2, "comments": {}}, {"score": 3, "comments": {}}, {"score": 2, "comments": {}}, {"score": 4, "comments": {}}, {"score": 4, "comments": {}}, {"score": 5, "comments": {}}], [{"score": 3, "comments": {}}, {"score": null, "comments": {}}, {"score": 2, "comments": {}}, {"score": 2, "comments": {}}, {"score": null, "comments": {}}, {"score": 4, "comments": {}}, {"score": 3, "comments": {}}, {"score": 2, "comments": {}}, {"score": 4, "comments": {}}, {"score": 5, "comments": {}}], [{"score": 3, "comments": {}}, {"score": null, "comments": {}}, {"score": 3, "comments": {}}, {"score": 2, "comments": {}}, {"score": 3, "comments": {}}, {"score": 3, "comments": {}}, {"score": 2, "comments": {}}, {"score": 3, "comments": {}}, {"score": 5, "comments": {}}, {"score": 4, "comments": {}}], [{"score": 5, "comments": {}}, {"score": null, "comments": {}}, {"score": 4, "comments": {}}, {"score": 3, "comments": {}}, {"score": null, "comments": {}}, {"score": 4, "comments": {}}, {"score": 2, "comments": {}}, {"score": 2, "comments": {}}, {"score": 4, "comments": {}}, {"score": 5, "comments": {}}], [{"score": 3, "comments": {}}, {"score": null, "comments": {}}, {"score": null, "comments": {}}, {"score": 2, "comments": {}}, {"score": 3, "comments": {}}, {"score": 3, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": 4, "comments": {}}, {"score": 4, "comments": {}}], [{"score": 4, "comments": {}}, {"score": null, "comments": {}}, {"score": null, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": 3, "comments": {}}, {"score": 3, "comments": {}}, {"score": 5, "comments": {}}, {"score": 4, "comments": {}}, {"score": 4, "comments": {}}], [{"score": 4, "comments": {}}, {"score": null, "comments": {}}, {"score": 4, "comments": {}}, {"score": null, "comments": {}}, {"score": null, "comments": {}}, {"score": null, "comments": {}}, {"score": 3, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": 5, "comments": {}}], [{"score": 4, "comments": {}}, {"score": null, "comments": {}}, {"score": 3, "comments": {}}, {"score": null, "comments": {}}, {"score": 2, "comments": {}}, {"score": 3, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": 4, "comments": {}}, {"score": 4, "comments": {}}], [{"score": null, "comments": {}}, {"score": null, "comments": {}}, {"score": 1, "comments": {}}, {"score": 2, "comments": {}}, {"score": 4, "comments": {}}, {"score": 3, "comments": {}}, {"score": 2, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": 4, "comments": {}}], [{"score": null, "comments": {}}, {"score": null, "comments": {}}, {"score": 4, "comments": {}}, {"score": null, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": 4, "comments": {}}, {"score": 5, "comments": {}}, {"score": 5, "comments": {}}, {"score": 5, "comments": {}}], [{"score": 5, "comments": {}}, {"score": null, "comments": {}}, {"score": 2, "comments": {}}, {"score": null, "comments": {}}, {"score": null, "comments": {}}, {"score": 4, "comments": {}}, {"score": 4, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": null, "comments": {}}], [{"score": 4, "comments": {}}, {"score": null, "comments": {}}, {"score": 4, "comments": {}}, {"score": 2, "comments": {}}, {"score": null, "comments": {}}, {"score": 2, "comments": {}}, {"score": 4, "comments": {}}, {"score": 2, "comments": {}}, {"score": 4, "comments": {}}, {"score": 5, "comments": {}}], [{"score": 3, "comments": {}}, {"score": null, "comments": {}}, {"score": 5, "comments": {}}, {"score": 1, "comments": {}}, {"score": 3, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": 3, "comments": {}}, {"score": 5, "comments": {}}, {"score": 4, "comments": {}}], [{"score": 4, "comments": {}}, {"score": null, "comments": {}}, {"score": null, "comments": {}}, {"score": null, "comments": {}}, {"score": 2, "comments": {}}, {"score": 2, "comments": {}}, {"score": 5, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": 4, "comments": {}}], [{"score": 3, "comments": {}}, {"score": null, "comments": {}}, {"score": 3, "comments": {}}, {"score": 2, "comments": {}}, {"score": 3, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": 5, "comments": {}}, {"score": 4, "comments": {}}, {"score": 5, "comments": {}}], [{"score": 2, "comments": {}}, {"score": null, "comments": {}}, {"score": 2, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": 4, "comments": {}}, {"score": 4, "comments": {}}, {"score": 5, "comments": {}}], [{"score": 4, "comments": {}}, {"score": null, "comments": {}}, {"score": 2, "comments": {}}, {"score": 3, "comments": {}}, {"score": null, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": null, "comments": {}}, {"score": 3, "comments": {}}, {"score": 3, "comments": {}}], [{"score": null, "comments": {}}, {"score": null, "comments": {}}, {"score": 3, "comments": {}}, {"score": null, "comments": {}}, {"score": 4, "comments": {}}, {"score": 3, "comments": {}}, {"score": 3, "comments": {}}, {"score": null, "comments": {}}, {"score": 4, "comments": {}}, {"score": 5, "comments": {}}], [{"score": null, "comments": {}}, {"score": null, "comments": {}}, {"score": null, "comments": {}}, {"score": 1, "comments": {}}, {"score": 3, "comments": {}}, {"score": null, "comments": {}}, {"score": 5, "comments": {}}, {"score": null, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}], [{"score": null, "comments": {}}, {"score": null, "comments": {}}, {"score": null, "comments": {}}, {"score": null, "comments": {}}, {"score": 3, "comments": {}}, {"score": null, "comments": {}}, {"score": 3, "comments": {}}, {"score": null, "comments": {}}, {"score": 4, "comments": {}}, {"score": 5, "comments": {}}], [{"score": 3, "comments": {}}, {"score": null, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": 5, "comments": {}}, {"score": 3, "comments": {}}, {"score": 4, "comments": {}}, {"score": null, "comments": {}}, {"score": 5, "comments": {}}, {"score": 5, "comments": {}}]], "q25": [{"author": "评价人01（平级）", "text": "作为新任部门负责人，整体表现符合预期，对比其他负责人仍有成长空间"}, {"author": "评价人02（平级）", "text": "有责任心和自驱力，目前处于积累实战经验的阶段，需要更多实践和上级指导"}, {"author": "评价人03（平级）", "text": "1.对绩效指标有重视意识，态度积极，但结果导向偏弱——某项目季度绩效持续低迷，改善效果有限；
+2.团队分工停留在'有人在做'层面，缺乏岗位适配度的系统性考量；
+3.倾向于封闭处理问题，与支持部门信息透明度不足，影响协同效率；
+4.风险预判意识薄弱，多为事后响应，缺少前置监测机制"}, {"author": "评价人04（平级）", "text": "沟通方式有待改善——对借调同事缺乏必要的引荐和融入安排，与支持部门的互动方式让协作方感到不被尊重。在面临绩效压力时倾向于通过调整规则来降低要求，而非直面问题根源"}, {"author": "评价人05（平级）", "text": "担任部门负责人以来经历了较大挑战，能够关注到业务量的变化，是合格的负责人"}, {"author": "评价人06（平级）", "text": "作为新晋部门负责人，综合表现符合预期"}, {"author": "评价人09（下级）", "text": "对业务理解到位，给团队的专业建议有实际价值；遇到紧急情况能快速调整方案并有效沟通，为团队提供了成长机会"}, {"author": "评价人07（平级）", "text": "业务管理思路清晰有节奏。但团队管理上风格偶尔不稳定，使部分员工感到不适应。仍会带入职能管理思维，在管理中过度关注出勤类指标。对新老成员存在双重标准"}, {"author": "评价人08（平级）", "text": "遇事积极推动解决，不会推脱逃避。部分长期存在的问题改善效果不够显著。业务判断速度有提升"}, {"author": "评价人10（下级）", "text": "学习能力强，具备业务判断力，能够兼顾经营目标与团队实际，从全局角度分析问题并推动解决"}], "q26": [{"author": "评价人01（平级）", "text": "在市场变化周期中，以身作则承担压力，兼顾团队心理建设。虽然目前仍有挑战，但希望这些经历能为她个人和团队带来经验沉淀，备战下一阶段的工作"}, {"author": "评价人02（平级）", "text": "/"}, {"author": "评价人03（平级）", "text": "1.团队分工调整：将数据分析、策略制定等职能移交总部支持团队，希望团队专注现场执行力；
+2.初衷是减负提效，但实际导致团队丧失独立运营判断能力，响应链拉长，削弱了驻地团队的成长空间"}, {"author": "评价人04（平级）", "text": "某批次关键物料在审核未完成时即交付给合作方处理，支持部门发现后一线第一反应是对支持部门的知情权表示质疑。据借调同事反馈，团队内部有'尽量少跟支持部门沟通'的倾向"}, {"author": "评价人05（平级）", "text": "管理中过度介入职能执行层工作，精力可更多聚焦于业务突破"}, {"author": "评价人06（平级）", "text": "市场变化前夕，重点客户大幅增加核心业务注入量，多路径测试方案并行，处理难度陡增导致运营过载，影响正常出入库节奏。她能敏锐做出业务分流决策：多方案并行推进，最终在短期内缓解了运营过载、恢复正常秩序"}, {"author": "评价人09（下级）", "text": "快速且成功切换业务处理模式，引入外部资源分担积压，短期内完成大量物料周转，帮助运营中心从过载边缘回到正常状态，绩效指标逐步恢复"}, {"author": "评价人07（平级）", "text": "暂无"}, {"author": "评价人08（平级）", "text": "1.在市场变化前夕制定多项备选方案。方案在协调阶段细节尚未考虑周全，需要多轮沟通后确定最终决策。
+2.后续推进过程中各类问题集中出现，推进节奏十分急迫。因前期未制定备选预案，导致协作部门原计划被影响"}, {"author": "评价人10（下级）", "text": "用自建合作方替代外部渠道处理核心业务；加强了对执行计划的管理控制，沟通更高效，理论上也可节省成本"}], "q27": [{"author": "评价人01（平级）", "text": "建议安排有类似经验的资深负责人分享心得，帮助其快速带领团队承接高业务量，并协助梳理高业务量下的流程"}, {"author": "评价人02（平级）", "text": "精益管理支持和运营执行支持——不仅关注应急处理，更要加强预防性管理。业务流程可横向沉淀各团队的好经验，形成可复用的实战指南，让新负责人更快理解业务运作框架"}, {"author": "评价人03（平级）", "text": "1.建立标准化运营监控体系，覆盖前端业务量监测、筹备、流转等环节，配套闭环反馈机制；
+2.将策略制定、数据分析等核心能力逐步交还驻地团队，辅以培训和评估，帮助重建独立运营能力"}, {"author": "评价人04（平级）", "text": "培养如何成为一个真正的Leader，而不仅仅是一个管理者"}, {"author": "评价人05（平级）", "text": "加强业务和经营意识，对支持部门保持坦诚沟通和信息分享"}, {"author": "评价人06（平级）", "text": "业务领导力提升的培训与实战；加强与各部门的相互赋能，合理借助支持部门力量，信息透明"}, {"author": "评价人09（下级）", "text": "目前最需要补充管理人员资源，搭建可使业务自主运营和优化的管理团队，尤其是资源调配部门需要补足人员短板"}, {"author": "评价人07（平级）", "text": "参加资深管理者提供的管理培训，了解更成熟的管理方式"}, {"author": "评价人08（平级）", "text": "无"}, {"author": "评价人10（下级）", "text": "需要招聘高素质员工；内部人员培训需加强；人员补充速度赶不上业务增长，熟练员工储备不足，对业务稳定性带来挑战"}]};
+const TEMPLATE = {"dimensions": [{"name": "业务导向与经营能力", "questions": [{"id": "Q1", "text": "对核心经营指标（业务量、单位成本、绩效指标）有敏感度，能及时发现问题并推动改善"}, {"id": "Q2", "text": "对某区域市场市场及竞对动态保持敏锐洞察，能将市场信息转化为可执行的业务调整方案"}, {"id": "Q3", "text": "在市场变化等外部政策变化时，能快速评估影响并制定应对策略"}]}, {"name": "跨部门协作与资源整合", "questions": [{"id": "Q4", "text": "能主动与后台支持部门（人力资源部/财务部/经营管理部/技术部等）保持高频信息同步与协作"}, {"id": "Q5", "text": "能建立并维护与项目、行业监管、核心服务商的常态化沟通机制，形成稳定的外部合作网络"}, {"id": "Q6", "text": "在面对跨部门分歧时，能聚焦问题本身寻找共识，对事不对人"}, {"id": "Q7", "text": "能将外部获取的关键信息（趋势、行业动态等）分享给团队及相关方，实现信息共享"}]}, {"name": "团队管理与人才发展", "questions": [{"id": "Q8", "text": "能准确判断团队成员的能力特点和优劣势，合理分工发挥各自优势"}, {"id": "Q9", "text": "敢于授权，结合成员优势合理派活，同时具备人员替换的风险预案"}, {"id": "Q10", "text": "保持与团队成员的定期沟通（含一线员工），能及时察觉并化解团队潜在矛盾"}, {"id": "Q11", "text": "能肯定团队成员的工作价值，在业务量高压期保持团队士气与稳定性"}, {"id": "Q12", "text": "能从\"人力资源部 sense\"上升到\"业务管理视角\"，在用人识人上更加成熟果断"}]}, {"name": "合规意识与风险管控", "questions": [{"id": "Q13", "text": "熟悉某区域市场驻地用工标准和政府要求，确保用工安全合规"}, {"id": "Q14", "text": "能主动推动外部客户项目交付资料的合规排查，提前规避项目交付风险"}, {"id": "Q15", "text": "能持续关注行业监管法规及合规要求的变化，具备风险预判和前置应对意识"}]}, {"name": "系统思考与全局观", "questions": [{"id": "Q16", "text": "分析问题时能把相关因素考虑全面，避免以偏概全，能看清问题全貌"}, {"id": "Q17", "text": "能从多渠道多方式获取信息（业务层面），并精准把握其核心内容"}, {"id": "Q18", "text": "能跳出单一部门视角，从业务单元全局出发思考资源配置与优先级"}]}, {"name": "持续改善与问题解决", "questions": [{"id": "Q19", "text": "能通过数据分析和意见反馈，主动发现业务中有待改善的问题，而非被动接受信息"}, {"id": "Q20", "text": "对项目交付、运营、资源调配等核心环节能输出针对性的优化方案并推动落地"}]}, {"name": "制度建设与目标管理", "questions": [{"id": "Q21", "text": "能根据业务量变化持续优化评估目标，按月设置目标、按季度复盘"}, {"id": "Q22", "text": "对新入职关键岗位（运营中心主管、资源调配主管等）能提出清晰的赋能要求和试用期评估计划"}, {"id": "Q23", "text": "能用团队理解和认同的方式沟通目标，激发团队动力而非单纯下达任务"}, {"id": "Q24", "text": "在过程管理中能坚持跟踪进度，对异常及时复盘并调整方向"}]}], "questions": [{"id": "Q1", "text": "对核心经营指标（业务量、单位成本、绩效指标）有敏感度，能及时发现问题并推动改善", "dimension": "业务导向与经营能力"}, {"id": "Q2", "text": "对某区域市场市场及竞对动态保持敏锐洞察，能将市场信息转化为可执行的业务调整方案", "dimension": "业务导向与经营能力"}, {"id": "Q3", "text": "在市场变化等外部政策变化时，能快速评估影响并制定应对策略", "dimension": "业务导向与经营能力"}, {"id": "Q4", "text": "能主动与后台支持部门（人力资源部/财务部/经营管理部/技术部等）保持高频信息同步与协作", "dimension": "跨部门协作与资源整合"}, {"id": "Q5", "text": "能建立并维护与项目、行业监管、核心服务商的常态化沟通机制，形成稳定的外部合作网络", "dimension": "跨部门协作与资源整合"}, {"id": "Q6", "text": "在面对跨部门分歧时，能聚焦问题本身寻找共识，对事不对人", "dimension": "跨部门协作与资源整合"}, {"id": "Q7", "text": "能将外部获取的关键信息（趋势、行业动态等）分享给团队及相关方，实现信息共享", "dimension": "跨部门协作与资源整合"}, {"id": "Q8", "text": "能准确判断团队成员的能力特点和优劣势，合理分工发挥各自优势", "dimension": "团队管理与人才发展"}, {"id": "Q9", "text": "敢于授权，结合成员优势合理派活，同时具备人员替换的风险预案", "dimension": "团队管理与人才发展"}, {"id": "Q10", "text": "保持与团队成员的定期沟通（含一线员工），能及时察觉并化解团队潜在矛盾", "dimension": "团队管理与人才发展"}, {"id": "Q11", "text": "能肯定团队成员的工作价值，在业务量高压期保持团队士气与稳定性", "dimension": "团队管理与人才发展"}, {"id": "Q12", "text": "能从\"人力资源部 sense\"上升到\"业务管理视角\"，在用人识人上更加成熟果断", "dimension": "团队管理与人才发展"}, {"id": "Q13", "text": "熟悉某区域市场驻地用工标准和政府要求，确保用工安全合规", "dimension": "合规意识与风险管控"}, {"id": "Q14", "text": "能主动推动外部客户项目交付资料的合规排查，提前规避项目交付风险", "dimension": "合规意识与风险管控"}, {"id": "Q15", "text": "能持续关注行业监管法规及合规要求的变化，具备风险预判和前置应对意识", "dimension": "合规意识与风险管控"}, {"id": "Q16", "text": "分析问题时能把相关因素考虑全面，避免以偏概全，能看清问题全貌", "dimension": "系统思考与全局观"}, {"id": "Q17", "text": "能从多渠道多方式获取信息（业务层面），并精准把握其核心内容", "dimension": "系统思考与全局观"}, {"id": "Q18", "text": "能跳出单一部门视角，从业务单元全局出发思考资源配置与优先级", "dimension": "系统思考与全局观"}, {"id": "Q19", "text": "能通过数据分析和意见反馈，主动发现业务中有待改善的问题，而非被动接受信息", "dimension": "持续改善与问题解决"}, {"id": "Q20", "text": "对项目交付、运营、资源调配等核心环节能输出针对性的优化方案并推动落地", "dimension": "持续改善与问题解决"}, {"id": "Q21", "text": "能根据业务量变化持续优化评估目标，按月设置目标、按季度复盘", "dimension": "制度建设与目标管理"}, {"id": "Q22", "text": "对新入职关键岗位（运营中心主管、资源调配主管等）能提出清晰的赋能要求和试用期评估计划", "dimension": "制度建设与目标管理"}, {"id": "Q23", "text": "能用团队理解和认同的方式沟通目标，激发团队动力而非单纯下达任务", "dimension": "制度建设与目标管理"}, {"id": "Q24", "text": "在过程管理中能坚持跟踪进度，对异常及时复盘并调整方向", "dimension": "制度建设与目标管理"}], "idp": [{"phase": "第一阶段", "category": "结果导向", "title": "核心经营指标达成", "requirements": ["Q1 达成 业务部门 项目交付处理能力≥达标水平", "提货 单位成本: 评审版 预算范围内; 保守版 预算范围内", "项目交付服务 单位成本: 评审版 预算范围内; 保守版 预算范围内", "库操 单位成本: 评审版 预算范围内; 保守版 预算范围内", "绩效指标: 标准水平", "某区域市场 常规业务&核心业务 市场洞察报告1份"], "self_assessment": "业务量已达标，单位成本数据需从财务部调取。洞察信息已cover 常规业务&核心业务。", "related_questions": ["Q1", "Q2", "Q3"], "related_dimension": "业务导向与经营能力", "ai_analysis": "【数据维度分析】该模块覆盖 3 项 360 评估问题（Q1, Q2, Q3），共 25 条有效评分。平均分 3.4，最高分 5，最低分 2。下级平均评分（4.2）显著高于平级（3.2），差值为 1.0 分，说明候选人对下级的管理和带动能力获得高度认可，但平级协作维度存在认知差距。该模块最低分仅 2 分，说明至少有一位评价者认为候选人尚未稳定展现相关能力。综合评价：该模块部分达标但存在短板，建议结合具体低分项制定针对性改进计划。候选人自评反馈「业务量已达标，单位成本数据需从财务部调取。洞察信息已cover 常规业务&核心业务。…」结合 IDP 关键成果要求，行动建议：建立「以客户预报 → 资源筹备 → 内部资源调配 → 外部补位」的闭环流程，将「业务量≥达标水平」「绩效指标 标准水平」拆解为部门部门负责人周目标，按月 review 调整。"}, {"phase": "第一阶段", "category": "业务知识", "title": "部门负责人 入门全体系培训 & 业务掌握", "requirements": ["完成 部门负责人 入门全体系赋能培训", "Q1 输出某区域市场市场多维度洞察报告", "完成驻地项目交付业务考试报名并启动备考", "掌握 业务部门 业务全流程（资源调配/运营中心排班、项目交付业务资质申请）"], "self_assessment": "已熟练。项目交付业务部获资质人员证书，运营中心、资源调配、运营均已熟悉。", "related_questions": ["Q2", "Q3", "Q17", "Q18"], "related_dimension": "系统思考与全局观", "ai_analysis": "【数据维度分析】该模块覆盖 4 项 360 评估问题（Q2, Q3, Q17, Q18），共 32 条有效评分。平均分 3.5，最高分 5，最低分 2。下级平均评分（4.2）显著高于平级（3.2），差值为 1.0 分，说明候选人对下级的管理和带动能力获得高度认可，但平级协作维度存在认知差距。该模块最低分仅 2 分，说明至少有一位评价者认为候选人尚未稳定展现相关能力。综合评价：该模块基本达标，建议巩固优势项、补齐低分反馈。候选人自评反馈「已熟练。项目交付业务部获资质人员证书，运营中心、资源调配、运营均已熟悉。…」结合 IDP 关键成果要求，行动建议：针对项目交付业务深度知识，从资质人员证 → 资质申请全流程 → 行业监管法规变化形成学习路径，每两周输出 1 份学习心得并与上级对齐。"}, {"phase": "第一阶段", "category": "团队合作", "title": "团队军心稳定与协作", "requirements": ["上任1个月内稳住团队军心", "深度参与业务各部门沟通协作会议", "某月X日前输出团队人员观察报告及管理措施"], "self_assessment": "已完成；持续更新，主动关怀团队，输送公司文化。", "related_questions": ["Q4", "Q5", "Q6", "Q7"], "related_dimension": "跨部门协作与资源整合", "ai_analysis": "【数据维度分析】该模块覆盖 4 项 360 评估问题（Q4, Q5, Q6, Q7），共 34 条有效评分。平均分 3.4，最高分 5，最低分 2。下级平均评分（4.4）显著高于平级（3.1），差值为 1.3 分，说明候选人对下级的管理和带动能力获得高度认可，但平级协作维度存在认知差距。该模块最低分仅 2 分，说明至少有一位评价者认为候选人尚未稳定展现相关能力。综合评价：该模块部分达标但存在短板，建议结合具体低分项制定针对性改进计划。候选人自评反馈「已完成；持续更新，主动关怀团队，输送公司文化。…」结合 IDP 关键成果要求，行动建议：建立部门长群定期沟通机制，每月召开 1 次跨部门对齐会；落实 1V1 沟通频次（每月 1 次），形成书面观察报告。"}, {"phase": "第一阶段", "category": "外部资源对接", "title": "外部合作网络建设", "requirements": ["完成某区域市场项目、核心服务商正式建联", "了解外部项目交付公司机构合作", "建立外包人员供应商动态沟通机制"], "self_assessment": "已完成；兄弟部门行业监管关系维护、机场合作方磨合、原合作方联动均持续进行中。", "related_questions": ["Q5", "Q14"], "related_dimension": "合规意识与风险管控", "ai_analysis": "【数据维度分析】该模块覆盖 2 项 360 评估问题（Q5, Q14），共 14 条有效评分。平均分 3.4，最高分 5，最低分 2。下级平均评分（4.2）显著高于平级（3.2），差值为 1.1 分，说明候选人对下级的管理和带动能力获得高度认可，但平级协作维度存在认知差距。该模块最低分仅 2 分，说明至少有一位评价者认为候选人尚未稳定展现相关能力。综合评价：该模块基本达标，建议巩固优势项、补齐低分反馈。候选人自评反馈「已完成；兄弟部门行业监管关系维护、机场合作方磨合、原合作方联动均持续进行中。…」结合 IDP 关键成果要求，行动建议：梳理现有外部合作方清单并按优先级分层（A/B/C 级），针对 A 级核心资源建立月度沟通节奏。"}, {"phase": "第一阶段", "category": "团队管理", "title": "团队任务分配与人才识别", "requirements": ["具备团队任务分配能力，结合成员优势合理派活、敢于授权", "主导制定 Q1 团队季度目标", "无重大团队投诉/负面评价/冲突事件", "保证与团队成员的沟通频次（每月1V1）"], "self_assessment": "持续重视识人，替换准备周全；心态情绪稳定，无冲突投诉。Q2目标：从人力资源部 sense到业务管理视角，有提升。", "related_questions": ["Q8", "Q9", "Q10", "Q11", "Q12"], "related_dimension": "团队管理与人才发展", "ai_analysis": "【数据维度分析】该模块覆盖 5 项 360 评估问题（Q8, Q9, Q10, Q11, Q12），共 38 条有效评分。平均分 3.5，最高分 4，最低分 2。下级平均评分（3.9）显著高于平级（3.3），差值为 0.6 分，说明候选人对下级的管理和带动能力获得高度认可，但平级协作维度存在认知差距。该模块最低分仅 2 分，说明至少有一位评价者认为候选人尚未稳定展现相关能力。综合评价：该模块基本达标，建议巩固优势项、补齐低分反馈。候选人自评反馈「持续重视识人，替换准备周全；心态情绪稳定，无冲突投诉。Q2目标：从人力资源部 sense到业务管理视角，有提升。…」结合 IDP 关键成果要求，行动建议：针对 Q12「人力资源部 sense → 业务管理视角」短板，引入 部门负责人-1 层赋能 + 上级 1V1 实战辅导；建立人员替换风险预案库。"}, {"phase": "第一阶段", "category": "合规管理", "title": "用工合规与行业监管法规", "requirements": ["熟悉驻地用工标准，确保安全用工", "试用期内无合规风险事件", "深化对行业监管法规及合规要求的了解"], "self_assessment": "完全合规中。Q2目标：保持+风险预判，持续中。", "related_questions": ["Q13", "Q14", "Q15"], "related_dimension": "合规意识与风险管控", "ai_analysis": "【数据维度分析】该模块覆盖 3 项 360 评估问题（Q13, Q14, Q15），共 21 条有效评分。平均分 3.7，最高分 5，最低分 2。下级平均评分（4.3）显著高于平级（3.4），差值为 0.9 分，说明候选人对下级的管理和带动能力获得高度认可，但平级协作维度存在认知差距。该模块最低分仅 2 分，说明至少有一位评价者认为候选人尚未稳定展现相关能力。综合评价：该模块基本达标，建议巩固优势项、补齐低分反馈。候选人自评反馈「完全合规中。Q2目标：保持+风险预判，持续中。…」结合 IDP 关键成果要求，行动建议：针对外部客户项目交付资料合规排查，引入法务季度 review 机制；形成 1 份《合规风险地图》。"}, {"phase": "第二阶段", "category": "系统思考", "title": "问题全貌识别 & 关键信息把握", "requirements": ["常规业务高货值和核心业务资质获取后，提前规划业务工作流", "新政策市场变化后的客户业务需求变化和驻地业务调整", "业务层面信息获取和分析判断能力强化"], "self_assessment": "已做到，且进行中；期间和上级决策权高度对齐。对比Q1有较大改善。", "related_questions": ["Q16", "Q17", "Q18"], "related_dimension": "系统思考与全局观", "ai_analysis": "【数据维度分析】该模块覆盖 3 项 360 评估问题（Q16, Q17, Q18），共 25 条有效评分。平均分 3.4，最高分 5，最低分 2。下级平均评分（4.3）显著高于平级（3.2），差值为 1.2 分，说明候选人对下级的管理和带动能力获得高度认可，但平级协作维度存在认知差距。该模块最低分仅 2 分，说明至少有一位评价者认为候选人尚未稳定展现相关能力。综合评价：该模块基本达标，建议巩固优势项、补齐低分反馈。候选人自评反馈「已做到，且进行中；期间和上级决策权高度对齐。对比Q1有较大改善。…」结合 IDP 关键成果要求，行动建议：针对市场变化后客户业务需求变化，建立季度市场洞察报告机制；引入支持部门支持分析框架。"}, {"phase": "第二阶段", "category": "持续改善", "title": "前置发现问题 & 优化方案", "requirements": ["项目交付段：通过新业务测试看数据、给建议", "运营中心绩效指标操作层：发现问题、提醒改善", "对合作方层面：协调服务商方案", "客户层：主动预判客户疑问并预警"], "self_assessment": "能很好地做到；4个层级均有覆盖。", "related_questions": ["Q19", "Q20"], "related_dimension": "持续改善与问题解决", "ai_analysis": "【数据维度分析】该模块覆盖 2 项 360 评估问题（Q19, Q20），共 16 条有效评分。平均分 3.3，最高分 5，最低分 2。下级平均评分（4.2）显著高于平级（3.0），差值为 1.2 分，说明候选人对下级的管理和带动能力获得高度认可，但平级协作维度存在认知差距。该模块最低分仅 2 分，说明至少有一位评价者认为候选人尚未稳定展现相关能力。综合评价：该模块部分达标但存在短板，建议结合具体低分项制定针对性改进计划。候选人自评反馈「能很好地做到；4个层级均有覆盖。…」结合 IDP 关键成果要求，行动建议：针对运营中心绩效指标操作层改善，建立「发现问题 → 提醒对应人员 → 跟踪改善」闭环机制，每周输出改善追踪表。"}, {"phase": "第二阶段", "category": "建章立制", "title": "目标管理 & 过程跟踪", "requirements": ["按月设置目标、按季度复盘", "新入职关键岗位（运营中心主管、资源调配主管）的赋能要求和试用期评估", "团队目标拆解与共识建立", "SOP迭代，过程管理持续跟踪"], "self_assessment": "过程管理持续在（周会）；项目交付业务表现佳，运营中心NO.2，资源调配和运营待改善。", "related_questions": ["Q21", "Q22", "Q23", "Q24"], "related_dimension": "制度建设与目标管理", "ai_analysis": "【数据维度分析】该模块覆盖 4 项 360 评估问题（Q21, Q22, Q23, Q24），共 23 条有效评分。平均分 3.5，最高分 5，最低分 1。下级平均评分（4.0）显著高于平级（3.3），差值为 0.7 分，说明候选人对下级的管理和带动能力获得高度认可，但平级协作维度存在认知差距。该模块最低分仅 1 分，说明至少有一位评价者认为候选人尚未稳定展现相关能力。综合评价：该模块基本达标，建议巩固优势项、补齐低分反馈。候选人自评反馈「过程管理持续在（周会）；项目交付业务表现佳，运营中心NO.2，资源调配和运营待改善。…」结合 IDP 关键成果要求，行动建议：针对 Q23「沟通目标使团队理解认同」短板，在月会中增加 15 分钟目标对齐环节，确保团队认知一致。"}]};
+const DIM_AVGS = {"业务导向与经营能力": {"peer": 3.1578947368421053, "sub": 4.166666666666667}, "跨部门协作与资源整合": {"peer": 3.0384615384615383, "sub": 4.375}, "团队管理与人才发展": {"peer": 3.2857142857142856, "sub": 3.9}, "合规意识与风险管控": {"peer": 3.4375, "sub": 4.4}, "系统思考与全局观": {"peer": 3.1578947368421053, "sub": 4.333333333333333}, "持续改善与问题解决": {"peer": 3.0, "sub": 4.25}, "制度建设与目标管理": {"peer": 3.3333333333333335, "sub": 4.0}};
 
-// ====== 核心计算 ======
-function avg(arr) { return arr.filter(v => v !== null && !isNaN(v)).reduce((a,b)=>a+b,0) / arr.filter(v => v !== null && !isNaN(v)).length || 0; }
-function stdevCalc(arr) { const a = arr.filter(v => v !== null && !isNaN(v)); if(a.length<2) return null; const m = a.reduce((s,v)=>s+v,0)/a.length; return Math.sqrt(a.reduce((s,v)=>s+Math.pow(v-m,2),0)/a.length); }
-
-const QIDS = DATA.questions.map(q=>q.id);
-const DIMS = DATA.dim_list;
-const SCORES = DATA.scores;
-
-// 按关系分组
-const evaluators = DATA.evaluators || [];
-const peerIdx = evaluators.map((e,i)=>(e.relation||'').includes('平级')?i:-1).filter(i=>i>=0);
-const subIdx = evaluators.map((e,i)=>(e.relation||'').includes('下级')?i:-1).filter(i=>i>=0);
-
-// 维度均分
-const dimAvgs = {};
-DATA.question_bank.dimensions.forEach(dim => {
-  let all=[]; dim.questions.forEach(q => { all = all.concat((SCORES[q.id]||[]).filter(v=>v!==null)); });
-  dimAvgs[dim.name] = avg(all);
+const CATEGORIES = TEMPLATE.dimensions.map(d => d.name);
+const Q_T技术部LES = {};
+const Q_FULL_TEXT = {};
+TEMPLATE.questions.forEach(q => {
+  Q_T技术部LES[q.id] = q.id + ' ' + q.text.substring(0, 30);
+  Q_FULL_TEXT[q.id] = q.id + ' ' + q.text;
 });
+const Q_TO_DIM = {};
+TEMPLATE.questions.forEach(q => { Q_TO_DIM[q.id] = q.dimension; });
+const Q_KEYS = TEMPLATE.questions.map(q => q.id);
+const EVALUATORS = DATA.evaluators;
 
-// 每题均分
-const qAvgs = {};
-QIDS.forEach(q => { const s=SCORES[q]||[]; qAvgs[q] = avg(s); });
+function avg(arr) { const f = arr.filter(v => v !== null && !isNaN(v)); return f.length ? f.reduce((a,b)=>a+b,0)/f.length : null; }
 
-// 全局数据
-const allScores = QIDS.flatMap(q => (SCORES[q]||[]).filter(v=>v!==null));
-const allAvg = avg(allScores);
-const peerAvg = avg(peerIdx.flatMap(i => QIDS.map(q => (SCORES[q]||[])[i]).filter(v=>v!==null)));
-const subAvg = avg(subIdx.flatMap(i => QIDS.map(q => (SCORES[q]||[])[i]).filter(v=>v!==null)));
-
-// 排序
-const sortedCats = Object.entries(dimAvgs).sort((a,b) => (b[1]||0) - (a[1]||0));
-const sortedQ = QIDS.map(q => ({q,v:qAvgs[q]})).filter(x=>x.v>0).sort((a,b)=>(a.v||0)-(b.v||0));
-
-// ====== 渲染 ======
-function render() {
-    let h = '';
-    
-    // 标题
-    h += `<header class="hero">
-        <div class="wrap">
-            <div>
-                <h1>${DATA.question_bank.meta.table_title} · ${DATA.question_bank.meta.subject}</h1>
-                <div class="sub">${DATA.dim_list.length} 维度 · ${QIDS.length} 项指标 · ${evaluators.length} 位评价者 (${peerIdx.length} 平级 + ${subIdx.length} 下级)</div>
-            </div>
-            <div style="display:flex;gap:10px">
-                <div class="pill"><b>${peerIdx.length}</b>有效平级</div>
-                <div class="pill"><b>${subIdx.length}</b>有效下级</div>
-            </div>
-        </div>
-    </header>`;
-
-    // KPI 卡片
-    h += `<div class="wrap"><div class="kpis">
-        <div class="kpi"><div class="l">📊 综合平均分</div><div class="v">${allAvg.toFixed(2)}</div><div class="d">满分 5.0 · ${allScores.length} 条评分</div></div>
-        <div class="kpi"><div class="l"><span class="dot good"></span>最高维度</div><div class="v">${sortedCats[0][1].toFixed(2)}</div><div class="d">${sortedCats[0][0]}</div></div>
-        <div class="kpi"><div class="l"><span class="dot bad"></span>最低维度</div><div class="v">${sortedCats[sortedCats.length-1][1].toFixed(2)}</div><div class="d">${sortedCats[sortedCats.length-1][0]}</div></div>
-        <div class="kpi"><div class="l">⚖️ 下级 vs 平级</div><div class="v">${subAvg.toFixed(2)} / ${peerAvg.toFixed(2)}</div><div class="d">差 ${Math.abs(subAvg-peerAvg).toFixed(2)} 分</div></div>
-        <div class="kpi"><div class="l">🔍 最大分歧项</div><div class="v" id="kpi-max-stdev">--</div><div class="d" id="kpi-max-stdev-q"></div></div>
-    </div>`;
-
-    // 维度对比
-    h += `<section><div class="sec-h"><div class="ic">📊</div><h2>维度对比分析（平级 vs 下级）</h2></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">`;
-
-    // 柱状图
-    h += `<div>`;
-    DIMS.forEach(dim => {
-        const d = DATA.dimensions[dim] || {peer:0,sub:0};
-        h += `<div class="bar-line"><div class="name">${dim}</div><div class="bar-track"><div class="bar-fill peer" style="width:${(d.peer/5*100).toFixed(0)}%">${(d.peer||0).toFixed(2)}</div></div></div>`;
-        h += `<div class="bar-line"><div class="name" style="color:var(--ink2);font-size:10px">　　下级</div><div class="bar-track"><div class="bar-fill sub" style="width:${(d.sub/5*100).toFixed(0)}%">${(d.sub||0).toFixed(2)}</div></div></div>`;
-    });
-    h += `</div>`;
-
-    // 雷达图
-    h += `<div class="chart-box"><canvas id="radarChart"></canvas></div></div>
-        <div class="legend"><i style="background:var(--peer)"></i>平级 <i style="background:var(--sub)"></i>下级</div>
-    </section>`;
-
-    // 每题得分
-    h += `<section><div class="sec-h"><div class="ic">📋</div><h2>各项指标得分</h2></div>
-        <div style="max-height:600px;overflow-y:auto">`;
-    QIDS.forEach(q => {
-        const v = qAvgs[q] || 0;
-        const sd = stdevCalc((SCORES[q]||[]).filter(x=>x!==null));
-        const qInfo = DATA.questions.find(x=>x.id===q);
-        const tag = qInfo ? qInfo.tag : '';
-        const dim = qInfo ? qInfo.dimension : '';
-        const color = v < 3.0 ? 'var(--bad)' : v < 3.5 ? 'var(--mid)' : 'var(--good)';
-        h += `<div class="tl">
-            <div class="h"><span>${q} ${tag}</span><span class="score" style="color:${color}">${v.toFixed(2)}</span></div>
-            <div style="flex:1;margin:6px 16px 0 0"><div class="bar-track"><div class="bar-fill peer" style="width:${(v/5*100).toFixed(0)}%;background:${color}"></div></div></div>
-            <div class="q" style="display:flex;justify-content:space-between"><span>${dim}</span>${sd !== null ? '<span>SD='+sd.toFixed(2)+'</span>' : ''}</div>
-        </div>`;
-    });
-    h += `</div></section>`;
-
-    // 评分热力图
-    h += `<section><div class="sec-h"><div class="ic">🔢</div><h2>评价明细（热力图）</h2></div>
-        <div style="overflow-x:auto"><table>
-        <tr><th>评价人</th><th>关系</th>${QIDS.map(q=>'<th>'+q+'</th>').join('')}<th>均分</th></tr>`;
-    evaluators.forEach((ev, ei) => {
-        h += `<tr><td>${ev.name||('评价人'+(ei+1))}</td>
-            <td><span class="badge ${(ev.relation||'').includes('平级')?'peer':'sub'}">${ev.relation||'未知'}</span></td>`;
-        const rowScores = QIDS.map(q => (SCORES[q]||[])[ei]);
-        rowScores.forEach(s => {
-            const bg = s===null?'transparent': s>=4?'rgba(63,185,80,.2)': s>=3?'rgba(210,153,34,.2)':'rgba(248,81,73,.2)';
-            h += `<td style="background:${bg};text-align:center">${s!==null?s:'-'}</td>`;
-        });
-        h += `<td style="font-weight:700">${avg(rowScores).toFixed(2)}</td></tr>`;
-    });
-    h += `</table></div></section>`;
-
-    // 脚注
-    h += `<div style="text-align:center;padding:20px;color:var(--ink2);font-size:12px">
-        360° 环评诊断看板 | 数据来源: ${DATA.question_bank.source_file || '飞书Base'} | 生成时间: ${new Date().toLocaleString('zh-CN')}
-    </div></div>`;
-
-    document.getElementById('app').innerHTML = h;
-
-    // 渲染雷达图
-    new Chart(document.getElementById('radarChart'), {
-        type: 'radar',
-        data: {
-            labels: DIMS,
-            datasets: [{
-                label: '维度均分', data: DIMS.map(c => dimAvgs[c]),
-                backgroundColor: 'rgba(88,166,255,0.12)', borderColor: '#58A6FF', borderWidth: 2,
-                pointBackgroundColor: '#58A6FF', pointBorderColor: '#fff', pointRadius: 4
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            scales: { r: { min: 1, max: 5, ticks: { stepSize: 1, color: '#8B949E' }, pointLabels: { color: '#E6EDF3', font: {size:11} }, grid: { color: '#30363D' }, angleLines: { color: '#30363D' } } },
-            plugins: { legend: { display: false } }
-        }
-    });
-
-    // 找最大分歧项
-    let maxSD = 0, maxSDQ = '';
-    QIDS.forEach(q => {
-        const sd = stdevCalc((SCORES[q]||[]).filter(x=>x!==null));
-        if (sd && sd > maxSD) { maxSD = sd; maxSDQ = q; }
-    });
-    document.getElementById('kpi-max-stdev').textContent = maxSD > 0 ? maxSD.toFixed(2) : '--';
-    document.getElementById('kpi-max-stdev-q').textContent = maxSDQ;
+const SCORES = {};
+Q_KEYS.forEach((qk, qi) => {
+  if (DATA.questions[qi]) SCORES[qk] = DATA.data[qi].map(d => d.score);
+});
+function getComment(qIdx, eIdx) {
+  const d = DATA.data[qIdx][eIdx];
+  if (!d.comments || Object.keys(d.comments).length === 0) return null;
+  const score = d.score;
+  if (score !== null && d.comments[String(score)]) return d.comments[String(score)];
+  for (const k of Object.keys(d.comments)) { if (d.comments[k]) return d.comments[k]; }
+  return null;
 }
 
-render();
+const catAvgs = {};
+TEMPLATE.dimensions.forEach(dim => {
+  const qs = dim.questions.map(q => q.id);
+  let all = [];
+  qs.forEach(q => { if (SCORES[q]) all = all.concat(SCORES[q]); });
+  catAvgs[dim.name] = avg(all);
+});
+const qAvgs = {};
+Q_KEYS.forEach(q => { qAvgs[q] = SCORES[q] ? avg(SCORES[q]) : null; });
+const evalAvgs = EVALUATORS.map((_, i) => avg(Q_KEYS.map(q => SCORES[q] ? SCORES[q][i] : null)));
+
+const allValidScores = [];
+Q_KEYS.forEach(q => { if (SCORES[q]) SCORES[q].forEach(v => { if (v !== null && !isNaN(v)) allValidScores.push(v); }); });
+const allAvg = avg(allValidScores) || 0;
+const sortedCats = Object.entries(catAvgs).sort((a,b) => (b[1]||0) - (a[1]||0));
+const sortedQAvgs = Q_KEYS.map(q => ({q, v: qAvgs[q]})).filter(x => x.v !== null).sort((a,b) => (a.v||0)-(b.v||0));
+const top5 = sortedQAvgs.slice(-5).reverse(), bottom5 = sortedQAvgs.slice(0, 5);
+
+// ─── KPI Cards ───
+var kpiSubAvg = avg(EVALUATORS.filter((_,i)=>EVALUATORS[i].relation==='下级').map((_,i)=>evalAvgs[i]));
+var kpiPeerAvg = avg(EVALUATORS.filter((_,i)=>EVALUATORS[i].relation!=='下级').map((_,i)=>evalAvgs[i]));
+document.getElementById('kpi_all').textContent = allAvg.toFixed(2);
+document.getElementById('kpi_all_n').textContent = '满分 5.0 · ' + allValidScores.length + ' 条评分';
+document.getElementById('kpi_top_dim').textContent = sortedCats[0][0];
+document.getElementById('kpi_top_val').textContent = sortedCats[0][1].toFixed(2);
+document.getElementById('kpi_bot_dim').textContent = sortedCats[sortedCats.length-1][0];
+document.getElementById('kpi_bot_val').textContent = sortedCats[sortedCats.length-1][1].toFixed(2);
+document.getElementById('kpi_subvpeer').textContent = (kpiSubAvg||0).toFixed(2) + ' / ' + (kpiPeerAvg||0).toFixed(2);
+document.getElementById('quadPos').textContent = '下级 ' + (kpiSubAvg||0).toFixed(2) + ' / 平级 ' + (kpiPeerAvg||0).toFixed(2);
+
+// ─── Dim Bars ───
+(function(){
+  var host = document.getElementById('dimBars'), html = '';
+  CATEGORIES.forEach(function(dim){
+    var d = DIM_AVGS[dim] || {peer:0, sub:0};
+    var pw = (d.peer/5*100).toFixed(1), sw = (d.sub/5*100).toFixed(1);
+    html += '<div class="bar-line"><div class="name">' + dim + '</div><div class="bar-track"><div class="bar-fill peer" style="width:0%" data-w="'+pw+'">' + d.peer.toFixed(2) + '</div></div></div>';
+    html += '<div class="bar-line" style="margin-top:-4px"><div class="name" style="color:#adb5bd;font-size:11px">　下级</div><div class="bar-track"><div class="bar-fill sub" style="width:0%" data-w="'+sw+'">' + d.sub.toFixed(2) + '</div></div></div>';
+  });
+  host.innerHTML = html;
+  requestAnimationFrame(function(){ setTimeout(function(){
+    host.querySelectorAll('.bar-fill').forEach(function(b){ b.style.width = b.dataset.w + '%'; });
+  }, 120); });
+})();
+
+// ─── Radar ───
+new Chart(document.getElementById('radarChart'), {
+  type: 'radar',
+  data: {
+    labels: CATEGORIES,
+    datasets: [{
+      label: '维度均分', data: CATEGORIES.map(c => catAvgs[c]),
+      backgroundColor: 'rgba(59,91,219,0.12)', borderColor: '#3b5bdb', borderWidth: 2,
+      pointBackgroundColor: '#3b5bdb', pointBorderColor: '#fff', pointRadius: 4, pointHoverRadius: 6
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: { r: { min: 1, max: 5, ticks: { stepSize: 1, font: { size: 10 } }, pointLabels: { font: { size: 10 } } } },
+    plugins: { legend: { display: false } }
+  }
+});
+
+// ─── Bar Chart ───
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: Q_KEYS.map(q => Q_T技术部LES[q]),
+    datasets: [{
+      label: '平均分', data: Q_KEYS.map(q => qAvgs[q]),
+      backgroundColor: Q_KEYS.map(q => { var v = qAvgs[q]; return v < 3.1 ? 'rgba(224,49,49,0.7)' : v < 3.5 ? 'rgba(240,140,0,0.7)' : 'rgba(47,158,68,0.7)'; }),
+      borderColor: Q_KEYS.map(q => { var v = qAvgs[q]; return v < 3.1 ? '#e03131' : v < 3.5 ? '#f08c00' : '#2f9e44'; }),
+      borderWidth: 1, borderRadius: 4
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    scales: { x: { min: 1, max: 5, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#eee' } }, y: { ticks: { font: { size: 11, weight: '600' } } } },
+    plugins: { legend: { display: false }, tooltip: { callbacks: { title: ctx => ctx[0].label + ' · ' + Q_FULL_TEXT[ctx[0].label], label: ctx => '平均分: ' + ctx.raw.toFixed(2) + ' · ' + Q_TO_DIM[ctx[0].label] } } }
+  }
+});
+
+// ─── Quadrant ───
+(function(){
+  var W = 420, H = 380, pad = 46, max = 5, min = 0;
+  var px = (kpiPeerAvg||3) / 5 * (W-2*pad) + pad;
+  var py = H - pad - ((kpiSubAvg||4) / 5 * (H-2*pad));
+  var cx = 3.5/5*(W-2*pad)+pad, cy = H-pad-3.5/5*(H-2*pad);
+  var s = '<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:420px;font-family:inherit">';
+  s += '<rect x="'+pad+'" y="'+pad+'" width="'+(cx-pad)+'" height="'+(cy-pad)+'" fill="#fff5f5"/>';
+  s += '<rect x="'+cx+'" y="'+pad+'" width="'+(W-pad-cx)+'" height="'+(cy-pad)+'" fill="#e7f5ff"/>';
+  s += '<rect x="'+pad+'" y="'+cy+'" width="'+(cx-pad)+'" height="'+(H-pad-cy)+'" fill="#fff9db"/>';
+  s += '<rect x="'+cx+'" y="'+cy+'" width="'+(W-pad-cx)+'" height="'+(H-pad-cy)+'" fill="#ebfbee"/>';
+  s += '<line x1="'+pad+'" y1="'+cy+'" x2="'+(W-pad)+'" y2="'+cy+'" stroke="#adb5bd" stroke-width="1" stroke-dasharray="4 3"/>';
+  s += '<line x1="'+cx+'" y1="'+pad+'" x2="'+cx+'" y2="'+(H-pad)+'" stroke="#adb5bd" stroke-width="1" stroke-dasharray="4 3"/>';
+  s += '<text x="'+(W/2)+'" y="'+(H-10)+'" text-anchor="middle" font-size="11" fill="#5b6675">平级评价 →</text>';
+  s += '<text x="14" y="'+(H/2)+'" text-anchor="middle" font-size="11" fill="#5b6675" transform="rotate(-90 14 '+(H/2)+')">下级评价 →</text>';
+  s += '<text x="'+(W-pad-4)+'" y="'+(cy-4)+'" font-size="9" fill="#868e96" text-anchor="end">3.5</text>';
+  s += '<text x="'+(pad+4)+'" y="'+(cy-4)+'" font-size="9" fill="#868e96">3.5</text>';
+  [['表现稳健','优先晋升',W-pad-6,pad+30,'end'],['团队内部高认可','偏袒·缺大局观',pad+6,pad+30,'start'],['跨层级管理','可能对下苛刻',W-pad-6,H-pad-14,'end'],['需要重点关注','需干预',pad+6,H-pad-14,'start']].forEach(function(l){
+    s += '<text x="'+l[2]+'" y="'+l[3]+'" text-anchor="'+l[5]+'" font-size="10" font-weight="700" fill="#495057">'+l[0]+'</text>';
+    s += '<text x="'+l[2]+'" y="'+(parseInt(l[3])+13)+'" text-anchor="'+l[5]+'" font-size="9" fill="#868e96">'+l[1]+'</text>';
+  });
+  s += '<circle cx="'+px+'" cy="'+py+'" r="8" fill="#e03131" stroke="#fff" stroke-width="2.5"/>';
+  s += '<text x="'+px+'" y="'+(py-12)+'" text-anchor="middle" font-size="11" font-weight="800" fill="#e03131">候选人</text>';
+  s += '</svg>';
+  document.getElementById('quadChart').innerHTML = s;
+})();
+
+// ─── Heatmap ───
+var tooltip = document.getElementById('tooltip');
+function showTip(text, e) { tooltip.innerHTML = text; tooltip.classList.add('show'); positionTip(e); }
+function positionTip(e) { var x = e.clientX+12, y=e.clientY+12, rect=tooltip.getBoundingClientRect(); tooltip.style.left=Math.min(x,window.innerWidth-rect.width-10)+'px'; tooltip.style.top=Math.min(y,window.innerHeight-rect.height-10)+'px'; }
+function hideTip() { tooltip.classList.remove('show'); }
+
+
+
+
+// ─── Open-ended ───
+function escapeHtml(s){ if(!s)return""; return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function renderOpenQ(data, cid){
+  var container = document.getElementById(cid);
+  container.innerHTML = '<div class="comment-box"><div class="content">' + data.map(function(d){ return escapeHtml(d.text || ''); }).filter(function(t){ return t.length > 0 && t !== '（未填写）' && t !== '/'; }).map(function(t){ return '<div style="border-bottom:1px solid #e6eaf2;padding:8px 0;">' + t + '</div>'; }).join('') + '</div></div>';
+}
+renderOpenQ(DATA.q25, 'tab-q25'); renderOpenQ(DATA.q26, 'tab-q26'); renderOpenQ(DATA.q27, 'tab-q27');
+function switchTab(t){
+  var btns = document.querySelectorAll(".tab-btn");
+  for (var i = 0; i < btns.length; i++) { btns[i].classList.remove("active"); }
+  var panels = document.querySelectorAll(".tab-content");
+  for (var i = 0; i < panels.length; i++) { panels[i].style.display = "none"; }
+  var active = document.querySelector('[data-tab="' + t + '"]');
+  if (active) active.classList.add("active");
+  document.getElementById("tab-" + t).style.display = "block";
+}
+// ─── Anon avg bar chart ───
+var avgLabels = Q_KEYS.map(function(q, i) { return Q_T技术部LES[q]; });
+new Chart(document.getElementById('avgBarChart'), {
+  type: 'bar',
+  data: {
+    labels: avgLabels,
+    datasets: [{
+      label: '平均分',
+      data: Q_KEYS.map(function(q) { return qAvgs[q]; }),
+      backgroundColor: Q_KEYS.map(function(q) {
+        var v = qAvgs[q];
+        if (v < 3.1) return 'rgba(224,49,49,0.7)';
+        if (v < 3.5) return 'rgba(240,140,0,0.7)';
+        return 'rgba(47,158,68,0.7)';
+      }),
+      borderRadius: 4
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    scales: { x: { min: 1, max: 5, ticks: { stepSize: 1 } }, y: { ticks: { font: { size: 11, weight: '600' } } } },
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(ctx) { return '平均分: ' + ctx.raw.toFixed(2); } } } }
+  }
+});
 </script>
 </body>
 </html>
