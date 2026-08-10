@@ -20,21 +20,42 @@ Usage:
   python create_feishu_form.py <question_bank.json> [--base-name <name>] [--dry-run]
 """
 
-import json, sys, os, subprocess, time
+import json, sys, os, subprocess, time, platform
 
-LARK_CLI_NODE = r"C:/Users/zt26501/.workbuddy/binaries/node/versions/22.12.0/node.exe"
-LARK_CLI_SCRIPT = r"C:/Users/zt26501/.workbuddy/binaries/node/versions/22.12.0/node_modules/@larksuite/cli/scripts/run.js"
+LARK_CLI = _find_lark_cli()
 LARK_IDENTITY = "--as user"
+
+
+def _find_lark_cli():
+    """Auto-detect lark-cli node and script paths cross-platform."""
+    is_win = platform.system() == 'Windows'
+    home = os.path.expanduser('~')
+    base = os.path.join(home, '.workbuddy', 'binaries', 'node', 'versions')
+
+    # Try common node versions
+    for ver in ['22.12.0', '22.22.2']:
+        node_dir = os.path.join(base, ver)
+        node_exe = os.path.join(node_dir, 'node.exe' if is_win else 'bin', 'node')
+        script = os.path.join(node_dir, 'node_modules', '@larksuite', 'cli', 'scripts', 'run.js')
+        if os.path.exists(node_exe) and os.path.exists(script):
+            return {'node': node_exe, 'script': script}
+
+    # Fallback to system node
+    return {'node': 'node', 'script': None}
 
 
 def run_lark(*args, timeout=60):
     """运行 lark-cli 命令"""
-    cmd = [LARK_CLI_NODE, LARK_CLI_SCRIPT] + list(args)
+    node = LARK_CLI['node']
+    script = LARK_CLI.get('script')
+    if script:
+        cmd = [node, script] + list(args)
+    else:
+        cmd = [node] + list(args)
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
     if result.returncode != 0:
-        # 尝试从 stderr 读取错误
         try:
-            err = json.loads(result.stderr) if result.stderr else {}
+            err = json.loads(result.stderr or '{}')
         except:
             err = {}
         return {'ok': False, 'error': err.get('message', result.stderr or result.stdout)}
