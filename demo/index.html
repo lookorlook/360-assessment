@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>360° 环评诊断看板</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#161A1E; --card:#21262D; --ink:#E6EDF3; --ink2:#8B949E; --line:#30363D;
+  --brand:#58A6FF; --brand-soft:#1F2937;
+  --good:#3FB950; --mid:#D29922; --bad:#F85149;
+  --peer:#58A6FF; --sub:#F0883E;
+  --shadow:0 1px 3px rgba(0,0,0,.3),0 6px 24px rgba(0,0,0,.2);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;padding-bottom:60px}
+.wrap{max-width:1200px;margin:0 auto;padding:0 22px}
+header.hero{background:linear-gradient(120deg,#131C2E,#1A3370 55%,#1F4388);color:#fff;padding:28px 0 34px}
+header.hero .wrap{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px}
+.hero h1{font-size:22px;font-weight:700}
+.hero .sub{opacity:.9;font-size:13px;margin-top:6px}
+.pill{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 14px;font-size:13px;text-align:center;min-width:110px}
+.pill b{display:block;font-size:20px;font-weight:800;margin-top:2px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin:-22px 0 26px}
+.kpi{background:var(--card);border-radius:14px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.kpi .l{font-size:12px;color:var(--ink2);display:flex;align-items:center;gap:6px}
+.kpi .v{font-size:22px;font-weight:800;margin-top:8px}
+.kpi .d{font-size:11px;color:var(--ink2);margin-top:3px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.dot.bad{background:var(--bad)} .dot.good{background:var(--good)} .dot.brand{background:var(--brand)}
+section{background:var(--card);border-radius:16px;padding:24px;margin-bottom:20px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.sec-h{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.sec-h .ic{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-size:16px;background:var(--brand-soft);color:var(--brand)}
+.sec-h h2{font-size:17px;font-weight:700}
+.note{font-size:12px;color:var(--ink2);margin-bottom:14px}
+.bar-line{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:13px}
+.bar-line .name{width:140px;flex:none;color:var(--ink2);text-align:right;font-size:12px}
+.bar-track{flex:1;background:#161A1E;border-radius:7px;height:20px;position:relative;overflow:hidden}
+.bar-fill{height:100%;border-radius:7px;display:flex;align-items:center;justify-content:flex-end;padding-right:7px;color:#fff;font-size:11px;font-weight:700;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.bar-fill.peer{background:linear-gradient(90deg,#388BFD,#58A6FF)}
+.bar-fill.sub{background:linear-gradient(90deg,#D4622E,#F0883E)}
+.legend{display:flex;gap:18px;font-size:12px;color:var(--ink2);margin:4px 0 14px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:-1px}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+@media(max-width:860px){.chart-row{grid-template-columns:1fr} .kpis{grid-template-columns:repeat(2,1fr)}}
+.chart-box{position:relative;height:380px}
+.tl{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.tl .h{font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.tl .q{font-size:12px;color:var(--ink2);margin-top:4px}
+.tl .score{font-weight:800;font-size:16px}
+.tl .stdev{font-size:10px;color:var(--ink2);margin-left:4px}
+.risk{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.rc{border:1px solid var(--line);border-radius:13px;padding:15px;background:var(--card);border-left:4px solid var(--bad)}
+.rc.amber{border-left-color:var(--mid)}
+.rc .t{font-size:14px;font-weight:700;margin-bottom:5px}
+.rc p{font-size:12px;color:var(--ink2);margin-top:4px}
+.quote{border-left:3px solid var(--line);padding:5px 0 5px 11px;margin:9px 0 4px;font-size:11px;color:var(--ink2);font-style:italic}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.atag{background:rgba(248,81,73,.15);color:var(--bad);border:1px solid rgba(248,81,73,.3);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line)}
+th{color:var(--ink2);font-weight:600;font-size:11px;background:#161A1E}
+td .bar-sm{display:inline-block;height:14px;border-radius:3px;background:var(--brand);vertical-align:middle;margin-right:6px}
+tr:hover td{background:rgba(88,166,255,.05)}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700}
+.badge.peer{background:rgba(88,166,255,.15);color:var(--peer)}
+.badge.sub{background:rgba(240,136,62,.15);color:var(--sub)}
+</style>
+</head>
+<body>
+<div id="app">加载中...</div>
+
+<script>
+const DATA = {"dimensions": {"战略思维": {"peer": 3, "sub": 4.25}, "团队管理": {"peer": 3.21, "sub": 4.38}, "执行落地": {"peer": 3.05, "sub": 4}, "沟通协作": {"peer": 3.14, "sub": 4}, "创新突破": {"peer": 2.86, "sub": 3.83}}, "question_avgs": {"Q1": {"avg": null, "stdev": null, "n": 0}, "Q2": {"avg": 3.2, "stdev": 0.92, "n": 10}, "Q3": {"avg": 3.4, "stdev": 0.52, "n": 10}, "Q4": {"avg": 3.6, "stdev": 0.7, "n": 10}, "Q5": {"avg": 3.6, "stdev": 0.84, "n": 10}, "Q6": {"avg": 3.2, "stdev": 0.79, "n": 10}, "Q7": {"avg": 3.5, "stdev": 0.71, "n": 10}, "Q8": {"avg": 3.4, "stdev": 0.7, "n": 10}, "Q9": {"avg": 3.3, "stdev": 1.16, "n": 10}, "Q10": {"avg": 3.1, "stdev": 0.57, "n": 10}, "Q11": {"avg": 3.1, "stdev": 0.57, "n": 10}, "Q12": {"avg": 3.4, "stdev": 0.7, "n": 10}, "Q13": {"avg": 3.4, "stdev": 0.84, "n": 10}, "Q14": {"avg": 3.3, "stdev": 0.82, "n": 10}, "Q15": {"avg": 3.2, "stdev": 0.63, "n": 10}, "Q16": {"avg": 2.8, "stdev": 0.92, "n": 10}}, "questions": [{"id": "Q1", "text": "能从全局角度分析业务趋势，制定中长期规划", "dimension": "战略思维", "tag": "战略视野"}, {"id": "Q2", "text": "将公司战略分解为可执行的部门目标", "dimension": "战略思维", "tag": "目标拆解"}, {"id": "Q3", "text": "在市场变化时快速调整策略方向", "dimension": "战略思维", "tag": "灵活应变"}, {"id": "Q4", "text": "准确识别团队成员的优势和短板", "dimension": "团队管理", "tag": "识人用人"}, {"id": "Q5", "text": "根据业务需要合理配置人员", "dimension": "团队管理", "tag": "资源调配"}, {"id": "Q6", "text": "建立有效的团队激励机制", "dimension": "团队管理", "tag": "团队激励"}, {"id": "Q7", "text": "及时处理团队内部冲突", "dimension": "团队管理", "tag": "冲突化解"}, {"id": "Q8", "text": "制定清晰的执行计划和里程碑", "dimension": "执行落地", "tag": "计划制定"}, {"id": "Q9", "text": "跟踪关键节点，及时纠偏", "dimension": "执行落地", "tag": "过程管控"}, {"id": "Q10", "text": "确保交付质量和时效", "dimension": "执行落地", "tag": "质量保障"}, {"id": "Q11", "text": "跨部门沟通中能清晰表达观点", "dimension": "沟通协作", "tag": "清晰表达"}, {"id": "Q12", "text": "主动同步信息，避免信息孤岛", "dimension": "沟通协作", "tag": "信息共享"}, {"id": "Q13", "text": "在分歧中寻求共识，推动合作", "dimension": "沟通协作", "tag": "促成共识"}, {"id": "Q14", "text": "鼓励团队尝试新方法和新工具", "dimension": "创新突破", "tag": "鼓励创新"}, {"id": "Q15", "text": "从失败中总结经验，快速迭代", "dimension": "创新突破", "tag": "复盘迭代"}, {"id": "Q16", "text": "将行业最佳实践引入团队", "dimension": "创新突破", "tag": "标杆学习"}], "dim_list": ["战略思维", "团队管理", "执行落地", "沟通协作", "创新突破"], "evaluators": [{"name": "评价人1", "id": "rec_0", "relation": "上级"}, {"name": "评价人2", "id": "rec_1", "relation": "平级"}, {"name": "评价人3", "id": "rec_2", "relation": "平级"}, {"name": "评价人4", "id": "rec_3", "relation": "平级"}, {"name": "评价人5", "id": "rec_4", "relation": "平级"}, {"name": "评价人6", "id": "rec_5", "relation": "平级"}, {"name": "评价人7", "id": "rec_6", "relation": "平级"}, {"name": "评价人8", "id": "rec_7", "relation": "平级"}, {"name": "评价人9", "id": "rec_8", "relation": "下级"}, {"name": "评价人10", "id": "rec_9", "relation": "下级"}], "peer_count": 7, "sub_count": 2, "sup_count": 1, "scores": {"Q1": [null, null, null, null, null, null, null, null, null, null], "Q2": [3, 2, 3, 3, 3, 3, 4, 2, 4, 5], "Q3": [4, 3, 3, 4, 3, 3, 3, 3, 4, 4], "Q4": [3, 3, 4, 4, 4, 3, 3, 3, 5, 4], "Q5": [4, 4, 3, 3, 4, 3, 4, 2, 5, 4], "Q6": [3, 2, 3, 3, 3, 3, 3, 3, 5, 4], "Q7": [4, 2, 4, 3, 4, 3, 3, 4, 4, 4], "Q8": [3, 4, 3, 3, 4, 2, 3, 4, 4, 4], "Q9": [4, 2, 3, 2, 3, 2, 4, 3, 5, 5], "Q10": [3, 4, 3, 3, 3, 3, 4, 2, 3, 3], "Q11": [3, 3, 3, 3, 3, 2, 3, 4, 4, 3], "Q12": [3, 3, 4, 3, 3, 3, 4, 3, 5, 3], "Q13": [3, 4, 3, 3, 4, 2, 3, 3, 4, 5], "Q14": [3, 4, 3, 2, 3, 3, 3, 4, 3, 5], "Q15": [4, 3, 3, 3, 4, 2, 3, 3, 4, 3], "Q16": [3, 4, 2, 2, 2, 3, 2, 2, 4, 4]}, "question_bank": {"meta": {"subject": "张三", "title": "部门经理", "table_title": "360度 领导力胜任评价表"}, "dimensions": [{"name": "战略思维", "questions": [{"id": "Q1", "order_cn": "一", "description": "能从全局角度分析业务趋势，制定中长期规划", "tag": "战略视野"}, {"id": "Q2", "order_cn": "二", "description": "将公司战略分解为可执行的部门目标", "tag": "目标拆解"}, {"id": "Q3", "order_cn": "三", "description": "在市场变化时快速调整策略方向", "tag": "灵活应变"}]}, {"name": "团队管理", "questions": [{"id": "Q4", "order_cn": "一", "description": "准确识别团队成员的优势和短板", "tag": "识人用人"}, {"id": "Q5", "order_cn": "二", "description": "根据业务需要合理配置人员", "tag": "资源调配"}, {"id": "Q6", "order_cn": "三", "description": "建立有效的团队激励机制", "tag": "团队激励"}, {"id": "Q7", "order_cn": "四", "description": "及时处理团队内部冲突", "tag": "冲突化解"}]}, {"name": "执行落地", "questions": [{"id": "Q8", "order_cn": "一", "description": "制定清晰的执行计划和里程碑", "tag": "计划制定"}, {"id": "Q9", "order_cn": "二", "description": "跟踪关键节点，及时纠偏", "tag": "过程管控"}, {"id": "Q10", "order_cn": "三", "description": "确保交付质量和时效", "tag": "质量保障"}]}, {"name": "沟通协作", "questions": [{"id": "Q11", "order_cn": "一", "description": "跨部门沟通中能清晰表达观点", "tag": "清晰表达"}, {"id": "Q12", "order_cn": "二", "description": "主动同步信息，避免信息孤岛", "tag": "信息共享"}, {"id": "Q13", "order_cn": "三", "description": "在分歧中寻求共识，推动合作", "tag": "促成共识"}]}, {"name": "创新突破", "questions": [{"id": "Q14", "order_cn": "一", "description": "鼓励团队尝试新方法和新工具", "tag": "鼓励创新"}, {"id": "Q15", "order_cn": "二", "description": "从失败中总结经验，快速迭代", "tag": "复盘迭代"}, {"id": "Q16", "order_cn": "三", "description": "将行业最佳实践引入团队", "tag": "标杆学习"}]}], "total_questions": 16, "evaluators": [{"level": "上级", "name": "李四", "position": "事业部总经理"}, {"level": "平级", "name": "王五", "position": "市场部经理"}, {"level": "平级", "name": "赵六", "position": "技术部经理"}, {"level": "平级", "name": "钱七", "position": "财务部经理"}, {"level": "下级", "name": "孙八", "position": "高级工程师"}, {"level": "下级", "name": "周九", "position": "产品主管"}, {"level": "下级", "name": "吴十", "position": "运营专员"}], "scoring_options": [{"score": 1, "text": "1分：尚未展现此能力，需重点关注。"}, {"score": 2, "text": "2分：偶尔展现此能力，仍需加强。"}, {"score": 3, "text": "3分：能够展现此能力，基本达到要求。"}, {"score": 4, "text": "4分：经常展现此能力，表现稳定可靠。"}, {"score": 5, "text": "5分：持续高频展现此能力，可作为标杆示范。"}, {"score": null, "text": "无法判断"}], "source_file": "题库模板-360环评.xlsx", "_sheets_used": {"question_bank": "评价表", "evaluators": "评价人", "scoring": "评分标准"}}};
+
+// ====== 核心计算 ======
+function avg(arr) { return arr.filter(v => v !== null && !isNaN(v)).reduce((a,b)=>a+b,0) / arr.filter(v => v !== null && !isNaN(v)).length || 0; }
+function stdevCalc(arr) { const a = arr.filter(v => v !== null && !isNaN(v)); if(a.length<2) return null; const m = a.reduce((s,v)=>s+v,0)/a.length; return Math.sqrt(a.reduce((s,v)=>s+Math.pow(v-m,2),0)/a.length); }
+
+const QIDS = DATA.questions.map(q=>q.id);
+const DIMS = DATA.dim_list;
+const SCORES = DATA.scores;
+
+// 按关系分组
+const evaluators = DATA.evaluators || [];
+const peerIdx = evaluators.map((e,i)=>(e.relation||'').includes('平级')?i:-1).filter(i=>i>=0);
+const subIdx = evaluators.map((e,i)=>(e.relation||'').includes('下级')?i:-1).filter(i=>i>=0);
+
+// 维度均分
+const dimAvgs = {};
+DATA.question_bank.dimensions.forEach(dim => {
+  let all=[]; dim.questions.forEach(q => { all = all.concat((SCORES[q.id]||[]).filter(v=>v!==null)); });
+  dimAvgs[dim.name] = avg(all);
+});
+
+// 每题均分
+const qAvgs = {};
+QIDS.forEach(q => { const s=SCORES[q]||[]; qAvgs[q] = avg(s); });
+
+// 全局数据
+const allScores = QIDS.flatMap(q => (SCORES[q]||[]).filter(v=>v!==null));
+const allAvg = avg(allScores);
+const peerAvg = avg(peerIdx.flatMap(i => QIDS.map(q => (SCORES[q]||[])[i]).filter(v=>v!==null)));
+const subAvg = avg(subIdx.flatMap(i => QIDS.map(q => (SCORES[q]||[])[i]).filter(v=>v!==null)));
+
+// 排序
+const sortedCats = Object.entries(dimAvgs).sort((a,b) => (b[1]||0) - (a[1]||0));
+const sortedQ = QIDS.map(q => ({q,v:qAvgs[q]})).filter(x=>x.v>0).sort((a,b)=>(a.v||0)-(b.v||0));
+
+// ====== 渲染 ======
+function render() {
+    let h = '';
+    
+    // 标题
+    h += `<header class="hero">
+        <div class="wrap">
+            <div>
+                <h1>${DATA.question_bank.meta.table_title} · ${DATA.question_bank.meta.subject}</h1>
+                <div class="sub">${DATA.dim_list.length} 维度 · ${QIDS.length} 项指标 · ${evaluators.length} 位评价者 (${peerIdx.length} 平级 + ${subIdx.length} 下级)</div>
+            </div>
+            <div style="display:flex;gap:10px">
+                <div class="pill"><b>${peerIdx.length}</b>有效平级</div>
+                <div class="pill"><b>${subIdx.length}</b>有效下级</div>
+            </div>
+        </div>
+    </header>`;
+
+    // KPI 卡片
+    h += `<div class="wrap"><div class="kpis">
+        <div class="kpi"><div class="l">📊 综合平均分</div><div class="v">${allAvg.toFixed(2)}</div><div class="d">满分 5.0 · ${allScores.length} 条评分</div></div>
+        <div class="kpi"><div class="l"><span class="dot good"></span>最高维度</div><div class="v">${sortedCats[0][1].toFixed(2)}</div><div class="d">${sortedCats[0][0]}</div></div>
+        <div class="kpi"><div class="l"><span class="dot bad"></span>最低维度</div><div class="v">${sortedCats[sortedCats.length-1][1].toFixed(2)}</div><div class="d">${sortedCats[sortedCats.length-1][0]}</div></div>
+        <div class="kpi"><div class="l">⚖️ 下级 vs 平级</div><div class="v">${subAvg.toFixed(2)} / ${peerAvg.toFixed(2)}</div><div class="d">差 ${Math.abs(subAvg-peerAvg).toFixed(2)} 分</div></div>
+        <div class="kpi"><div class="l">🔍 最大分歧项</div><div class="v" id="kpi-max-stdev">--</div><div class="d" id="kpi-max-stdev-q"></div></div>
+    </div>`;
+
+    // 维度对比
+    h += `<section><div class="sec-h"><div class="ic">📊</div><h2>维度对比分析（平级 vs 下级）</h2></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">`;
+
+    // 柱状图
+    h += `<div>`;
+    DIMS.forEach(dim => {
+        const d = DATA.dimensions[dim] || {peer:0,sub:0};
+        h += `<div class="bar-line"><div class="name">${dim}</div><div class="bar-track"><div class="bar-fill peer" style="width:${(d.peer/5*100).toFixed(0)}%">${(d.peer||0).toFixed(2)}</div></div></div>`;
+        h += `<div class="bar-line"><div class="name" style="color:var(--ink2);font-size:10px">　　下级</div><div class="bar-track"><div class="bar-fill sub" style="width:${(d.sub/5*100).toFixed(0)}%">${(d.sub||0).toFixed(2)}</div></div></div>`;
+    });
+    h += `</div>`;
+
+    // 雷达图
+    h += `<div class="chart-box"><canvas id="radarChart"></canvas></div></div>
+        <div class="legend"><i style="background:var(--peer)"></i>平级 <i style="background:var(--sub)"></i>下级</div>
+    </section>`;
+
+    // 每题得分
+    h += `<section><div class="sec-h"><div class="ic">📋</div><h2>各项指标得分</h2></div>
+        <div style="max-height:600px;overflow-y:auto">`;
+    QIDS.forEach(q => {
+        const v = qAvgs[q] || 0;
+        const sd = stdevCalc((SCORES[q]||[]).filter(x=>x!==null));
+        const qInfo = DATA.questions.find(x=>x.id===q);
+        const tag = qInfo ? qInfo.tag : '';
+        const dim = qInfo ? qInfo.dimension : '';
+        const color = v < 3.0 ? 'var(--bad)' : v < 3.5 ? 'var(--mid)' : 'var(--good)';
+        h += `<div class="tl">
+            <div class="h"><span>${q} ${tag}</span><span class="score" style="color:${color}">${v.toFixed(2)}</span></div>
+            <div style="flex:1;margin:6px 16px 0 0"><div class="bar-track"><div class="bar-fill peer" style="width:${(v/5*100).toFixed(0)}%;background:${color}"></div></div></div>
+            <div class="q" style="display:flex;justify-content:space-between"><span>${dim}</span>${sd !== null ? '<span>SD='+sd.toFixed(2)+'</span>' : ''}</div>
+        </div>`;
+    });
+    h += `</div></section>`;
+
+    // 评分热力图
+    h += `<section><div class="sec-h"><div class="ic">🔢</div><h2>评价明细（热力图）</h2></div>
+        <div style="overflow-x:auto"><table>
+        <tr><th>评价人</th><th>关系</th>${QIDS.map(q=>'<th>'+q+'</th>').join('')}<th>均分</th></tr>`;
+    evaluators.forEach((ev, ei) => {
+        h += `<tr><td>${ev.name||('评价人'+(ei+1))}</td>
+            <td><span class="badge ${(ev.relation||'').includes('平级')?'peer':'sub'}">${ev.relation||'未知'}</span></td>`;
+        const rowScores = QIDS.map(q => (SCORES[q]||[])[ei]);
+        rowScores.forEach(s => {
+            const bg = s===null?'transparent': s>=4?'rgba(63,185,80,.2)': s>=3?'rgba(210,153,34,.2)':'rgba(248,81,73,.2)';
+            h += `<td style="background:${bg};text-align:center">${s!==null?s:'-'}</td>`;
+        });
+        h += `<td style="font-weight:700">${avg(rowScores).toFixed(2)}</td></tr>`;
+    });
+    h += `</table></div></section>`;
+
+    // 脚注
+    h += `<div style="text-align:center;padding:20px;color:var(--ink2);font-size:12px">
+        360° 环评诊断看板 | 数据来源: ${DATA.question_bank.source_file || '飞书Base'} | 生成时间: ${new Date().toLocaleString('zh-CN')}
+    </div></div>`;
+
+    document.getElementById('app').innerHTML = h;
+
+    // 渲染雷达图
+    new Chart(document.getElementById('radarChart'), {
+        type: 'radar',
+        data: {
+            labels: DIMS,
+            datasets: [{
+                label: '维度均分', data: DIMS.map(c => dimAvgs[c]),
+                backgroundColor: 'rgba(88,166,255,0.12)', borderColor: '#58A6FF', borderWidth: 2,
+                pointBackgroundColor: '#58A6FF', pointBorderColor: '#fff', pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: { r: { min: 1, max: 5, ticks: { stepSize: 1, color: '#8B949E' }, pointLabels: { color: '#E6EDF3', font: {size:11} }, grid: { color: '#30363D' }, angleLines: { color: '#30363D' } } },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 找最大分歧项
+    let maxSD = 0, maxSDQ = '';
+    QIDS.forEach(q => {
+        const sd = stdevCalc((SCORES[q]||[]).filter(x=>x!==null));
+        if (sd && sd > maxSD) { maxSD = sd; maxSDQ = q; }
+    });
+    document.getElementById('kpi-max-stdev').textContent = maxSD > 0 ? maxSD.toFixed(2) : '--';
+    document.getElementById('kpi-max-stdev-q').textContent = maxSDQ;
+}
+
+render();
+</script>
+</body>
+</html>
